@@ -1,6 +1,7 @@
 package com.ccbgestaocustosapi.models;
 
 
+import com.ccbgestaocustosapi.token.Token;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -49,8 +50,10 @@ public class Usuarios implements UserDetails {
     @Column(name = "usuario_adm", nullable = false)
     private String usuarioAdm;
 
-
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
     @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_permissao", nullable = false)
     private Role role;
 
     @Override
