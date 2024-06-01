@@ -6,21 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "SETORES")
+@Table(name = "SETORES", schema="CCB")
 @DiscriminatorValue("SETORES")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Setores {
     @Id
-    @Column(name = "setor_id", nullable = false)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "setores_setor_id_seq")
+    @SequenceGenerator(schema = "CCB", name = "setores_setor_id_seq", sequenceName = "setores_setor_id_seq", allocationSize = 1)
+    @Column(name = "setor_id")
     private Integer setorId;
 
     @ManyToOne
-    @JoinColumn(name = "adm_id", referencedColumnName = "adm_id")
+    @JoinColumn(name = "adm_id")
     private Administracao adm;
 
-    @ManyToOne
-    @JoinColumn(name = "setor_id", referencedColumnName = "setor_id")
+    @Column(name = "setor_nome", nullable = false)
     private String setorNome;
 }

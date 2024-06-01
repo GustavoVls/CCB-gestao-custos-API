@@ -5,33 +5,37 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
-@Table(name = "USUARIOS")
-@DiscriminatorValue("USUARIOS")
+@Table(name = "USUARIOS",schema="CCB")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Usuarios implements Serializable {
+public class Usuarios implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_usuario", nullable = false)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "usuarios_id_usuario_seq")
+    @SequenceGenerator(schema = "CCB", name = "usuarios_id_usuario_seq", sequenceName = "usuarios_id_usuario_seq", initialValue = 1, allocationSize = 1)
+    @Column(name = "id_usuario")
     private Integer idUsuario;
 
 
     @ManyToOne
-    @JoinColumn(name = "adm_id", referencedColumnName = "adm_id")
+    @JoinColumn(name = "adm_id")
     private Administracao adm;
 
-    @ManyToOne
-    @JoinColumn(name = "setor_id", referencedColumnName = "setor_id")
+    @ManyToOne(cascade=CascadeType.PERSIST)
+    @JoinColumn(name = "setor_id")
     private Setores setor;
 
-    @ManyToOne
-    @JoinColumn(name = "igr_id", referencedColumnName = "igr_id")
+    @ManyToOne(cascade=CascadeType.PERSIST)
+    @JoinColumn(name = "igr_id")
     private CasaOracoes igr;
 
     @Column(name = "nome_usuario", nullable = false)
@@ -39,10 +43,48 @@ public class Usuarios implements Serializable {
     @Column(name = "senha_usuario", nullable = false)
     private String senha;
 
-    @Column(name = "email_usuario", nullable = false)
+    @Column(name = "email_usuario", nullable = false, unique = true)
     private String email;
 
     @Column(name = "usuario_adm", nullable = false)
     private String usuarioAdm;
 
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

@@ -9,22 +9,23 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "ADMINISTRACAO")
+@Table(name = "ADMINISTRACAO", schema ="CCB")
 @AllArgsConstructor
 @NoArgsConstructor
-@DiscriminatorValue("ADMINISTRACAO")
 @Data
 public class Administracao implements Serializable {
 
     @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "administracao_adm_id_seq")
+    @SequenceGenerator(schema = "CCB", name = "administracao_adm_id_seq", sequenceName = "administracao_adm_id_seq", allocationSize = 1)
     @Column(name = "adm_id", nullable = false)
     private Integer admId;
 
     @Column(name = "adm_nome", nullable = false)
-    private Integer admNome;
+    private String admNome;
 
     @Column(name = "adm_cidade", nullable = false)
-    private Integer admCidade;
+    private String admCidade;
 
     @Column(name = "adm_estado", nullable = false)
     private String admEstado;

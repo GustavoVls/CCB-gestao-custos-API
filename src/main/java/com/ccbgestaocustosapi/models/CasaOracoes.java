@@ -7,24 +7,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "CASA_ORACOES")
-@DiscriminatorValue("CASA_ORACOES")
+@Table(name = "CASA_ORACOES", schema="CCB")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 public class CasaOracoes {
     @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "igr_id_seq")
+    @SequenceGenerator(schema = "CCB", name = "igr_id_seq", sequenceName = "igr_id_seq", allocationSize = 1)
     @Column(name = "igr_id", nullable = false)
     private Integer igrId;
 
-    @JoinColumn(name = "setor_id", referencedColumnName = "setor_id")
+    @ManyToOne
+    @JoinColumn(name = "setor_id")
     private Setores setor;
 
     @ManyToOne
-    @JoinColumn(name = "adm_id", referencedColumnName = "adm_id")
+    @JoinColumn(name = "adm_id")
     private Administracao adm;
 
-    @Column(name = "igr_cod", nullable = false)
+    @Column(name = "igr_cod")
     private String igrCod;
 
     @Column(name = "igr_endereco", nullable = false)
