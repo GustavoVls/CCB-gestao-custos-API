@@ -31,8 +31,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> cadastarUsuario(@RequestBody AuthenticationRequest request){
+    public ResponseEntity<AuthenticationResponse> cadastarUsuario(@RequestBody AuthenticationRequest request) throws Exception {
          return         ResponseEntity.ok(authenticationService.authenticate(request));
+
+
 
     }
 

@@ -42,7 +42,11 @@ public class SecutiryConfiguration {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
+                                .requestMatchers("/api/v1/exemplo-controller/admin").hasAuthority("ADMIN")
+                                .requestMatchers("/api/v1/exemplo-controller").hasAnyAuthority("ADMIN", "USER")
+                                .requestMatchers("/api-ccb/**").hasAuthority("ADMIN")
                                 .anyRequest()
+
                                 .authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
