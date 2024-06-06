@@ -26,6 +26,7 @@ public class AdministracaoController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return CentralExceptionHandler.handleException(e, "Erro na busca de dados da administração");
+
         }
     }
 
