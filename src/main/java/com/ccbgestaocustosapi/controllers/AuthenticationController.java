@@ -4,7 +4,7 @@ package com.ccbgestaocustosapi.controllers;
 import com.ccbgestaocustosapi.dto.AuthenticationRequest;
 import com.ccbgestaocustosapi.dto.AuthenticationResponse;
 import com.ccbgestaocustosapi.dto.RegistrerRequest;
-import com.ccbgestaocustosapi.services.AuthenticationService;
+import com.ccbgestaocustosapi.services.authService.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

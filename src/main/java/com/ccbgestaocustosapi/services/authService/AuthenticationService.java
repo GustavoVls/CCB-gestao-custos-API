@@ -1,4 +1,4 @@
-package com.ccbgestaocustosapi.services;
+package com.ccbgestaocustosapi.services.authService;
 
 
 import com.ccbgestaocustosapi.dto.AuthenticationRequest;
