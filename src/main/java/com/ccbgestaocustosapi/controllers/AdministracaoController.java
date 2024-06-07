@@ -29,7 +29,7 @@ public class AdministracaoController {
             PaginatedResponse<Administracao> response = this.administracaoService.getbyIdAdministracao(id);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return CentralExceptionHandler.handleException(e, "Erro na busca de dados da administração");
+            return CentralExceptionHandler.handleException(e, "Erro na busca de dados da administração.");
         }
     }
 
@@ -38,9 +38,9 @@ public class AdministracaoController {
         try {
             this.administracaoService.createNewAdministracao(administracao);
             return ResponseEntity.ok(new PaginatedResponse<>
-                    ("Nova Administração salvo com sucesso", null, 0));
+                    ("Administração cadastrada com sucesso", null, 0));
         } catch (Exception e) {
-            return CentralExceptionHandler.handleException(e, "Não foi possível realizar o insert");
+            return CentralExceptionHandler.handleException(e, "Não foi possível cadastrar essa administração.");
         }
     }
 
@@ -49,7 +49,7 @@ public class AdministracaoController {
         try {
             this.administracaoService.updateAdministracao(administracao);
             return ResponseEntity.ok(new PaginatedResponse<>
-                    ("Campos da Administração atualizados com sucesso", null, 0));
+                    ("Campos atualizados com sucesso.", null, 0));
         } catch (Exception e) {
             return CentralExceptionHandler.handleException(e, e.getMessage());
         }

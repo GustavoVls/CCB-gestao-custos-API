@@ -72,7 +72,7 @@ public class AdministracaoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Administração não encontrada.");
         }
     }
-
+    @Transactional
     public void deleteAdministracao(Integer id) {
         Optional<Administracao> idEncontrado = administracaoRepository.findById(id);
 
@@ -81,7 +81,7 @@ public class AdministracaoService {
                 administracaoRepository.deleteById(id);
             }catch (Exception e){
                 throw new DataIntegrityViolationException("Essa Administração já está vinculada com outros serviços. " +
-                        "Realize primeiramente a remoção dos serivços para prosseguir");
+                        "Realize primeiramente a remoção dos serivços vinculados para prosseguir com a remoção.");
             }
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id da Administração não encontrado para realizar a remoção");

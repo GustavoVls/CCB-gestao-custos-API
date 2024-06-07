@@ -29,6 +29,8 @@ public class CasaOracoes {
     @Column(name = "igr_cod")
     private String igrCod;
 
+    @Column(name = "igr_nome")
+    private String igrNome;
     @Column(name = "igr_endereco", nullable = false)
     private String igrEndereco;
 
@@ -45,5 +47,5 @@ public class CasaOracoes {
     private String igrEstado;
 
     @Column(name = "igr_complemento", nullable = false)
-    private String igrComplento;
+    private String igrComplemento;
 }
