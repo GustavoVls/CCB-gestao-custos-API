@@ -9,7 +9,13 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "ADMINISTRACAO", schema ="CCB")
+@Table(name = "ADMINISTRACAO", schema ="CCB",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"adm_nome", "adm_cidade", "adm_estado"}),
+                @UniqueConstraint(columnNames = {"adm_nome"}),
+                @UniqueConstraint(columnNames = {"adm_cidade"}),
+                @UniqueConstraint(columnNames = {"adm_estado"})
+        })
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

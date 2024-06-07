@@ -11,7 +11,13 @@ public enum ExceptionType {
     IO_EXCEPTION("Input/output error"),
     FILE_NOT_FOUND_EXCEPTION("Arquivo não encotrado"),
     CLASS_NOT_FOUND_EXCEPTION("Classe não encontrada"),
-    SQL_EXCEPTION("erro de sql");
+    SQL_EXCEPTION("erro de sql"),
+    DATA_INTEGRITY_VIOLATION_EXCEPTION("duplicate key value violates unique constraint"),
+    INTERNAL_ERROR("Internal Error"),
+    BAD_REQUEST_EXCEPTION("Bad Request error"),
+    RESPONSE_STATUS_EXCEPTION("Error response");
+
+
 
 
     private final String message;

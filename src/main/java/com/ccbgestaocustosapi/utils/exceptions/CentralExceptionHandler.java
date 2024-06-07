@@ -1,8 +1,11 @@
 package com.ccbgestaocustosapi.utils.exceptions;
 
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
+import com.sun.jdi.InternalException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 public class CentralExceptionHandler {
     public static <T> ResponseEntity<PaginatedResponse<T>> handleException(Exception e, String additionalMessage) {
@@ -26,6 +29,16 @@ public class CentralExceptionHandler {
             exceptionType = ExceptionType.CLASS_NOT_FOUND_EXCEPTION;
         } else if (e instanceof java.sql.SQLException) {
             exceptionType = ExceptionType.SQL_EXCEPTION;
+        } else if (e instanceof DataIntegrityViolationException) {
+            exceptionType = ExceptionType.DATA_INTEGRITY_VIOLATION_EXCEPTION;
+        } else if (e instanceof ResponseStatusException responseStatusException) {
+            if (responseStatusException.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                exceptionType = ExceptionType.BAD_REQUEST_EXCEPTION;
+            } else {
+                exceptionType = ExceptionType.RESPONSE_STATUS_EXCEPTION;
+            }
+        } else if (e instanceof InternalException) {
+            exceptionType = ExceptionType.INTERNAL_ERROR;
         }
 
         if (exceptionType != null) {
