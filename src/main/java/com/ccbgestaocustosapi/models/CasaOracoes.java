@@ -7,7 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "CASA_ORACOES", schema="CCB")
+@Table(name = "CASA_ORACOES", schema="CCB",
+        uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"igr_nome", "igr_endereco", "igr_bairro", "igr_cep", "igr_cidade", "igr_estado","igr_complemento"}),
+        @UniqueConstraint(columnNames = {"igr_nome"}),
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

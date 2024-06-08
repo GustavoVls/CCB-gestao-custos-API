@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "SETORES", schema="CCB")
+@Table(name = "SETORES", schema="CCB", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"setor_nome"})})
 @DiscriminatorValue("SETORES")
 @Data
 @AllArgsConstructor
