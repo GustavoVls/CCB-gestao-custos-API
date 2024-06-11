@@ -7,10 +7,10 @@ import com.ccbgestaocustosapi.utils.exceptions.CentralExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("api-ccb/administracao")
 @RequiredArgsConstructor
+
 public class AdministracaoController {
     private final AdministracaoService administracaoService;
 
