@@ -20,7 +20,7 @@ public class Prioridades {
             sequenceName = "prioridades_prioridade_id_seq", allocationSize = 1)
     @Column(name = "prioridade_id", nullable = false)
     private Integer idCategoria;
-    @Column(name = "prioridade_nome", nullable = false)
+    @Column(name = "prioridade_nome", nullable = false, length = 100)
     private String nomePrioridade;
 
 }

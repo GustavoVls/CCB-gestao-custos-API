@@ -7,7 +7,7 @@ public class CasaOracoesRequest {
     private Integer igrId;
     private  Integer setorId;
     private  Integer admId;
-    private  String igrCod;
+    private  Character igrCod;
     private String igrNome;
     private String igrEndereco;
     private Character igrCep;

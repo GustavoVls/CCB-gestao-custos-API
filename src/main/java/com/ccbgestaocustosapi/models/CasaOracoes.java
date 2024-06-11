@@ -30,26 +30,26 @@ public class CasaOracoes {
     @JoinColumn(name = "adm_id")
     private Administracao adm;
 
-    @Column(name = "igr_cod")
-    private String igrCod;
+    @Column(name = "igr_cod", nullable = false, length = 10)
+    private Character igrCod;
 
-    @Column(name = "igr_nome")
+    @Column(name = "igr_nome", nullable = false, length = 100)
     private String igrNome;
-    @Column(name = "igr_endereco", nullable = false)
+    @Column(name = "igr_endereco", nullable = false, length = 100)
     private String igrEndereco;
 
-    @Column(name = "igr_bairro", nullable = false)
+    @Column(name = "igr_bairro", nullable = false, length = 100)
     private String igrBairro;
 
     @Column(name = "igr_cep", nullable = false, length = 10)
     private Character igrCep;
 
-    @Column(name = "igr_cidade", nullable = false)
+    @Column(name = "igr_cidade", nullable = false, length = 100)
     private String igrCidade;
 
     @Column(name = "igr_estado", nullable = false, length = 2)
     private Character igrEstado;
 
-    @Column(name = "igr_complemento", nullable = false)
+    @Column(name = "igr_complemento", nullable = false, length = 100)
     private String igrComplemento;
 }

@@ -22,7 +22,7 @@ public class CadastroReuniaoATDM {
     @Column(name = "reuniao_id", nullable = false)
     private Integer reuniaoId;
 
-    @Column(name = "reuniao_descricao", nullable = false)
+    @Column(name = "reuniao_descricao", nullable = false, length = 100)
     private String reuniaoDescricao;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
@@ -30,12 +30,10 @@ public class CadastroReuniaoATDM {
     private LocalDate reuniaoData;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
-
     @Column(name = "reuniao_data_ini", nullable = false)
     private LocalDate reuniaoDataIni;
 
     @JsonFormat(pattern = "dd/MM/yyyy") // caso precisar retornar do formato normal que é yyyy-mm-dd, apenas remover
-
     @Column(name = "reuniao_data_fim", nullable = false)
     private LocalDate reuniaoDataFim;
 

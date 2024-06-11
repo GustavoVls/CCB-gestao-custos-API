@@ -14,46 +14,50 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "USUARIOS",schema="CCB")
+@Table(name = "USUARIOS", schema = "CCB",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"nome_usuario", "email_usuario"}),
+                @UniqueConstraint(columnNames = {"nome_usuario"}),
+                @UniqueConstraint(columnNames = {"email_usuario"})
+        })
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class Usuarios implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "usuarios_id_usuario_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuarios_id_usuario_seq")
     @SequenceGenerator(schema = "CCB", name = "usuarios_id_usuario_seq", sequenceName = "usuarios_id_usuario_seq", allocationSize = 1)
     @Column(name = "id_usuario")
     private Integer idUsuario;
-
 
     @ManyToOne
     @JoinColumn(name = "adm_id")
     private Administracao adm;
 
-    @ManyToOne(cascade=CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "setor_id")
     private Setores setor;
 
-    @ManyToOne(cascade=CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "igr_id")
     private CasaOracoes igr;
 
-    @Column(name = "nome_usuario", nullable = false)
+    @Column(name = "nome_usuario", nullable = false, length = 100)
     private String nome;
-    @Column(name = "senha_usuario", nullable = false)
+    @Column(name = "senha_usuario", nullable = false, length = 100)
     private String senha;
 
-    @Column(name = "email_usuario", nullable = false, unique = true)
+    @Column(name = "email_usuario", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "usuario_adm", nullable = false)
-    private String usuarioAdm;
+    @Column(name = "usuario_adm", nullable = false, length = 1)
+    private Character usuarioAdm;
 
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_permissao", nullable = false)
+    @Column(name = "tipo_permissao", nullable = false, length = 50)
     private Role role;
 
     @Override

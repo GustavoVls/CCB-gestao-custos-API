@@ -16,5 +16,5 @@ public class RegisterRequest {
     private Integer idAdm;
     private Integer idSetor;
     private Integer idIgr;
-    private String usuarioAdm;
+    private Character usuarioAdm;
 }

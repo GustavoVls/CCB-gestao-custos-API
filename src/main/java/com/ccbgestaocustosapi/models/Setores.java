@@ -23,6 +23,6 @@ public class Setores {
     @JoinColumn(name = "adm_id")
     private Administracao adm;
 
-    @Column(name = "setor_nome", nullable = false)
+    @Column(name = "setor_nome", nullable = false, length = 100)
     private String setorNome;
 }

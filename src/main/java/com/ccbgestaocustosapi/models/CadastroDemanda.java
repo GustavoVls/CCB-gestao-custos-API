@@ -1,5 +1,6 @@
 package com.ccbgestaocustosapi.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +15,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Data
 public class CadastroDemanda {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cadastro_demandas_demanda_id_seq")
     @SequenceGenerator(schema = "CCB", name = "cadastro_demandas_demanda_id_seq", sequenceName = "cadastro_demandas_demanda_id_seq", allocationSize = 1)
@@ -41,19 +41,21 @@ public class CadastroDemanda {
     @ManyToOne
     @JoinColumn(name = "id_usuario")
     private Usuarios usuario;
+    @JsonFormat(pattern = "dd/MM/yyyy")
     @Column(name = "demanda_dat_lct", nullable = false)
     private LocalDate datalct;
+    @JsonFormat(pattern = "dd/MM/yyyy")
     @Column(name = "demanda_dat_reu", nullable = false)
     private LocalDate dataReuniao;
     @Column(name = "demanda_descricao", nullable = false)
     private String demandaReuniao;
-    @Column(name = "demanda_vlr_est", nullable = false)
-    private BigDecimal valorEstimado; // TODO: 11/06/2024  especificar a presisão de todos dados numeric
-    @Column(name = "demanda_vlr_apu", nullable = false)
+    @Column(name = "demanda_vlr_est", nullable = false, precision = 12, scale = 2)
+    private BigDecimal valorEstimado;
+    @Column(name = "demanda_vlr_apu", nullable = false, precision = 12, scale = 2)
     private BigDecimal valorApurado;
-    @Column(name = "demanda_vlr_apr", nullable = false)
+    @Column(name = "demanda_vlr_apr", nullable = false, precision = 12, scale = 2)
     private BigDecimal valorAprovado;
-    @Column(name = "demanda_vlr_cpr", nullable = false)
+    @Column(name = "demanda_vlr_cpr", nullable = false, precision = 12, scale = 2)
     private BigDecimal valorComprado;
     @Column(name = "demanda_status", nullable = false)
     private Character demandaStatus;

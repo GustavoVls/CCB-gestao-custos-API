@@ -29,10 +29,10 @@ public class Administracao implements Serializable {
     @Column(name = "adm_id", nullable = false)
     private Integer admId;
 
-    @Column(name = "adm_nome", nullable = false)
+    @Column(name = "adm_nome", nullable = false, length = 100)
     private String admNome;
 
-    @Column(name = "adm_cidade", nullable = false)
+    @Column(name = "adm_cidade", nullable = false, length = 100)
     private String admCidade;
 
     @Column(name = "adm_estado", nullable = false, length = 2)

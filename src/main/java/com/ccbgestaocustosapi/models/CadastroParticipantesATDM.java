@@ -22,12 +22,12 @@ public class CadastroParticipantesATDM {
     @JoinColumn(name = "reuniao_id")
     private CadastroReuniaoATDM reuniaoId;
 
-    @Column(name = "par_nome")
+    @Column(name = "par_nome", length = 100)
     private String nomeParticipante;
 
-    @Column(name = "par_cargo")
+    @Column(name = "par_cargo", length = 100)
     private String cargoParticipante;
 
-    @Column(name = "par_comum")
+    @Column(name = "par_comum", length = 100)
     private String comumParticipante;
 }
