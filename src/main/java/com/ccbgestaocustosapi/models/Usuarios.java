@@ -22,7 +22,7 @@ public class Usuarios implements UserDetails {
 
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "usuarios_id_usuario_seq")
-    @SequenceGenerator(schema = "CCB", name = "usuarios_id_usuario_seq", sequenceName = "usuarios_id_usuario_seq", initialValue = 1, allocationSize = 1)
+    @SequenceGenerator(schema = "CCB", name = "usuarios_id_usuario_seq", sequenceName = "usuarios_id_usuario_seq", allocationSize = 1)
     @Column(name = "id_usuario")
     private Integer idUsuario;
 

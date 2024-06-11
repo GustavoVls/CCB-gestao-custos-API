@@ -18,9 +18,8 @@ public class Categorias {
             sequenceName = "categorias_id_categoria_seq", allocationSize = 1)
     @Column(name = "id_categoria", nullable = false)
     private Integer idCategoria;
-    @Column(name = "par_nome")
+    @Column(name = "descricao_categoria")
     private String descricaoCategoria;
-    @Column(name = "par_cargo")
-    private String cargoParticipante;
-    @Column(name = "par_comum")
-    private String tipoCategoria;}
+    @Column(name = "tipo_categoria")
+    private String tipoCategoria;
+}
