@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class CasaOracoesRequest {
-
     private Integer igrId;
     private  Integer setorId;
     private  Integer admId;
@@ -16,5 +15,4 @@ public class CasaOracoesRequest {
     private String igrEstado;
     private String igrComplemento;
     private String igrBairro;
-
 }

@@ -9,14 +9,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegistrerRequest {
-
+public class RegisterRequest {
     private String nome;
     private String email;
     private String senha;
     private Integer idAdm;
     private Integer idSetor;
-
     private Integer idIgr;
     private String usuarioAdm;
 }

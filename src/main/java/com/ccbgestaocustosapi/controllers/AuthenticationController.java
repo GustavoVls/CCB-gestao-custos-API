@@ -3,7 +3,7 @@ package com.ccbgestaocustosapi.controllers;
 
 import com.ccbgestaocustosapi.dto.AuthenticationRequest;
 import com.ccbgestaocustosapi.dto.AuthenticationResponse;
-import com.ccbgestaocustosapi.dto.RegistrerRequest;
+import com.ccbgestaocustosapi.dto.RegisterRequest;
 import com.ccbgestaocustosapi.services.authService.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,16 +26,13 @@ public class AuthenticationController {
 
 
     @PostMapping("/cadastrarUsuario")
-    public ResponseEntity<AuthenticationResponse> cadastarUsuario(@RequestBody RegistrerRequest request){
+    public ResponseEntity<AuthenticationResponse> cadastarUsuario(@RequestBody RegisterRequest request){
      return    ResponseEntity.ok(authenticationService.register(request));
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> cadastarUsuario(@RequestBody AuthenticationRequest request) throws Exception {
          return         ResponseEntity.ok(authenticationService.authenticate(request));
-
-
-
     }
 
     @PostMapping("/refresh-token")

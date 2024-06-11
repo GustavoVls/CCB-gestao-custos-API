@@ -6,5 +6,4 @@ import lombok.Data;
 public class UsuariosRequest {
     private  Integer admId;
     private String setorNome;
-
 }

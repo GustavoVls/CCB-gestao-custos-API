@@ -60,7 +60,7 @@ public class CasaOracoesService {
 
             this.casaOracoesRepository.save(casaOracoes);
         } else {
-            throw new InternalError("vinculação não encontrada para cadastrar essa casa de oração");
+            throw new InternalError("Vinculação não encontrada para cadastrar essa casa de oração");
         }
 
 

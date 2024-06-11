@@ -3,7 +3,7 @@ package com.ccbgestaocustosapi.services.authService;
 
 import com.ccbgestaocustosapi.dto.AuthenticationRequest;
 import com.ccbgestaocustosapi.dto.AuthenticationResponse;
-import com.ccbgestaocustosapi.dto.RegistrerRequest;
+import com.ccbgestaocustosapi.dto.RegisterRequest;
 import com.ccbgestaocustosapi.models.*;
 import com.ccbgestaocustosapi.repository.AdministracaoRepository;
 import com.ccbgestaocustosapi.repository.CasaOracoesRepository;
@@ -51,7 +51,7 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
 
-    public AuthenticationResponse register(RegistrerRequest request) throws ResponseStatusException {
+    public AuthenticationResponse register(RegisterRequest request) throws ResponseStatusException {
 
         if (userRepository.existsByNome(request.getNome())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome usuário já existente");
