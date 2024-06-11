@@ -42,13 +42,13 @@ public class CasaOracoes {
     private String igrBairro;
 
     @Column(name = "igr_cep", nullable = false)
-    private String igrCep;
+    private Character igrCep;
 
     @Column(name = "igr_cidade", nullable = false)
     private String igrCidade;
 
     @Column(name = "igr_estado", nullable = false)
-    private String igrEstado;
+    private Character igrEstado;
 
     @Column(name = "igr_complemento", nullable = false)
     private String igrComplemento;

@@ -10,9 +10,9 @@ public class CasaOracoesRequest {
     private  String igrCod;
     private String igrNome;
     private String igrEndereco;
-    private String igrCep;
+    private Character igrCep;
     private String igrCidade;
-    private String igrEstado;
+    private Character igrEstado;
     private String igrComplemento;
     private String igrBairro;
 }

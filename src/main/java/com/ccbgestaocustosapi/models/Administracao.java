@@ -34,6 +34,6 @@ public class Administracao implements Serializable {
     private String admCidade;
 
     @Column(name = "adm_estado", nullable = false)
-    private String admEstado;
+    private Character admEstado;
 
 }
