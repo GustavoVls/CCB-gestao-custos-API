@@ -41,13 +41,13 @@ public class CasaOracoes {
     @Column(name = "igr_bairro", nullable = false)
     private String igrBairro;
 
-    @Column(name = "igr_cep", nullable = false)
+    @Column(name = "igr_cep", nullable = false, length = 10)
     private Character igrCep;
 
     @Column(name = "igr_cidade", nullable = false)
     private String igrCidade;
 
-    @Column(name = "igr_estado", nullable = false)
+    @Column(name = "igr_estado", nullable = false, length = 2)
     private Character igrEstado;
 
     @Column(name = "igr_complemento", nullable = false)

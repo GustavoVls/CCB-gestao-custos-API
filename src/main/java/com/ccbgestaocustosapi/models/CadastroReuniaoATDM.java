@@ -39,7 +39,7 @@ public class CadastroReuniaoATDM {
     @Column(name = "reuniao_data_fim", nullable = false)
     private LocalDate reuniaoDataFim;
 
-    @Column(name = "reuniao_status", nullable = false)
+    @Column(name = "reuniao_status", nullable = false, length = 1)
     private Character reuniaoStatus;
 
     @Lob
