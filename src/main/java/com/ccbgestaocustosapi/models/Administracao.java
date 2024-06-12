@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-// TODO: 11/06/2024 Colocar em todas as columns de String o equivalente ao valor da coluna.
 
 @Entity
 @Table(name = "ADMINISTRACAO", schema ="CCB",
@@ -36,6 +35,6 @@ public class Administracao implements Serializable {
     private String admCidade;
 
     @Column(name = "adm_estado", nullable = false, length = 2)
-    private Character admEstado;
+    private String admEstado;
 
 }

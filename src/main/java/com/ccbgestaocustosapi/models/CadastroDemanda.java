@@ -1,6 +1,7 @@
 package com.ccbgestaocustosapi.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,14 +39,15 @@ public class CadastroDemanda {
     @ManyToOne
     @JoinColumn(name = "reuniao_id")
     private CadastroReuniaoATDM reuniao;
+    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "usuario_id")
     private Usuarios usuario;
     @JsonFormat(pattern = "dd/MM/yyyy")
     @Column(name = "demanda_dat_lct", nullable = false)
     private LocalDate datalct;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    @Column(name = "demanda_dat_reu", nullable = false)
+    @Column(name = "demanda_data_reu", nullable = false)
     private LocalDate dataReuniao;
     @Column(name = "demanda_descricao", nullable = false)
     private String demandaReuniao;
