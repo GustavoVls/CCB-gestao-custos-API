@@ -1,5 +1,6 @@
 package com.ccbgestaocustosapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ public class AuthenticationResponse {
     @JsonProperty("access_token")
     private String accessToken;
 
+    @JsonIgnore
     @JsonProperty("refresh_token")
     private String refreshToken;
 }

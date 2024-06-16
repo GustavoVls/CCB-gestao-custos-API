@@ -4,6 +4,8 @@ package com.ccbgestaocustosapi.services.authService;
 import com.ccbgestaocustosapi.dto.AuthenticationRequest;
 import com.ccbgestaocustosapi.dto.AuthenticationResponse;
 import com.ccbgestaocustosapi.dto.RegisterRequest;
+import com.ccbgestaocustosapi.email.EmailService;
+import com.ccbgestaocustosapi.email.EmailTemplateName;
 import com.ccbgestaocustosapi.models.*;
 import com.ccbgestaocustosapi.repository.AdministracaoRepository;
 import com.ccbgestaocustosapi.repository.CasaOracoesRepository;
@@ -14,6 +16,7 @@ import com.ccbgestaocustosapi.token.Token;
 import com.ccbgestaocustosapi.token.TokenRepository;
 import com.ccbgestaocustosapi.token.TokenType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +54,8 @@ public class AuthenticationService {
 
 
     private final JwtService jwtService;
+
+    private  final EmailService emailService;
 
     public AuthenticationResponse register(RegisterRequest request) throws ResponseStatusException {
 
@@ -84,7 +90,7 @@ public class AuthenticationService {
         userDTO.setUsuarioAdm(request.getUsuarioAdm());
         userDTO.setAdm(adm);
 
-        if (request.getUsuarioAdm().equals("S")){
+        if (request.getUsuarioAdm().toString().equals("S")){
             userDTO.setRole(Role.ADMIN);
         }else{
             userDTO.setRole(Role.USER);
@@ -111,7 +117,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) throws Exception {
+    public void authenticate(AuthenticationRequest request) throws Exception {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -121,16 +127,11 @@ public class AuthenticationService {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(Exception::new);
         var jwtToken = jwtService.generateToken(user);
-     var refreshToken = jwtService.generateRefreshToken(user);
+
+        String codValid = generateActivationCode();
         revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken);
-        return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
-
-
-
+        saveUserToken(user, jwtToken,codValid);
+        sendValidationEmail(user, codValid);
     }
 
     private void revokeAllUserTokens(Usuarios user) {
@@ -144,13 +145,16 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    private void saveUserToken(Usuarios user, String jwtToken) {
+    private void saveUserToken(Usuarios user, String jwtToken, String codValid) {
+
+
         var token = Token.builder()
                 .user(user)
                 .token(jwtToken)
                 .tokenType(TokenType.BEARER)
                 .expired(false)
                 .revoked(false)
+                .codeValid(codValid)
                 .build();
         tokenRepository.save(token);
     }
@@ -172,9 +176,11 @@ public class AuthenticationService {
             var user = userRepository.findByEmail(userEmail)
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
+                String codValid = generateActivationCode();
+
                 var accessToken = jwtService.generateToken(user);
                 revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
+                saveUserToken(user, accessToken, codValid);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
@@ -185,5 +191,43 @@ public class AuthenticationService {
     }
 
 
+    private String generateActivationCode() {
+        String characters = "0123456789";
+        StringBuilder codeBuilder = new StringBuilder();
 
+        SecureRandom secureRandom = new SecureRandom();
+
+        for (int i = 0; i < 6; i++) {
+            int randomIndex = secureRandom.nextInt(characters.length());
+            codeBuilder.append(characters.charAt(randomIndex));
+        }
+
+        return codeBuilder.toString();
+    }
+
+    private void sendValidationEmail(Usuarios usuarios, String codigoAcesso) throws MessagingException {
+        emailService.sendEmail(
+                usuarios.getEmail(),
+                usuarios.getNome(),
+                EmailTemplateName.ACTIVATE_ACCOUNT,
+                codigoAcesso,
+                "Account activation"
+        );
+    }
+
+
+    public AuthenticationResponse verificaCodigoAcesso(String codigo) {
+        try {
+            Token token = this.tokenRepository.findByCodeValid(codigo).orElseThrow(() -> new RuntimeException("Código invalido"));
+            if (token.expired && token.revoked){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Setor não encontrado.");
+            }
+
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+            authenticationResponse.setAccessToken(token.getToken());
+            return  authenticationResponse;
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhum campo para atualização foi fornecido.");
+        }
+    }
 }

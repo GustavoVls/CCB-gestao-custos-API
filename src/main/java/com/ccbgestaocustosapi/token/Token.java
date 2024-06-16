@@ -12,11 +12,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "TOKEN",schema="CCB")
+@Table(name = "TOKEN",schema="CCB", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"token", "code_valid"}),
+        @UniqueConstraint(columnNames = {"token"}),
+        @UniqueConstraint(columnNames = {"code_valid"})
+})
 public class Token {
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "token_seq")
-    @SequenceGenerator(schema = "CCB", name = "token_seq", sequenceName = "token_seq", initialValue = 1, allocationSize = 1)
+    @SequenceGenerator(schema = "CCB", name = "token_seq", sequenceName = "token_seq", allocationSize = 1)
     public Integer id;
 
     @Column(unique = true)
@@ -28,6 +32,9 @@ public class Token {
     public boolean revoked;
 
     public boolean expired;
+
+    @Column(unique = true, name = "code_valid")
+    public String codeValid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario")

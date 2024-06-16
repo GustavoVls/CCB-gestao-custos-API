@@ -9,10 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -25,14 +22,15 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
 
-    @PostMapping("/cadastrarUsuario")
+    @PostMapping("/cadastrar-usuario")
     public ResponseEntity<AuthenticationResponse> cadastarUsuario(@RequestBody RegisterRequest request){
      return    ResponseEntity.ok(authenticationService.register(request));
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> cadastarUsuario(@RequestBody AuthenticationRequest request) throws Exception {
-         return         ResponseEntity.ok(authenticationService.authenticate(request));
+    public ResponseEntity<?> cadastarUsuario(@RequestBody AuthenticationRequest request) throws Exception {
+        authenticationService.authenticate(request);
+       return ResponseEntity.ok().build();
     }
 
     @PostMapping("/refresh-token")
@@ -41,5 +39,9 @@ public class AuthenticationController {
             HttpServletResponse response
     ) throws IOException {
         authenticationService.refreshToken(request, response);
+    }
+    @GetMapping("/verificar-codigo-acesso")
+    public ResponseEntity<AuthenticationResponse> getAcessoToken(@RequestParam(name = "codigo") String codigo) {
+        return ResponseEntity.ok(authenticationService.verificaCodigoAcesso(codigo));
     }
 }
