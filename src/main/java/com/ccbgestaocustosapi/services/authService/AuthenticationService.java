@@ -109,11 +109,9 @@ public class AuthenticationService {
         userRepository.save(userDTO);
 
         var jwtToken = jwtService.generateToken(userDTO);
-        var refreshToken = jwtService.generateRefreshToken(userDTO);
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -155,6 +153,7 @@ public class AuthenticationService {
                 .expired(false)
                 .revoked(false)
                 .codeValid(codValid)
+                .codigoExpirado(false)
                 .build();
         tokenRepository.save(token);
     }
@@ -183,7 +182,6 @@ public class AuthenticationService {
                 saveUserToken(user, accessToken, codValid);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken(refreshToken)
                         .build();
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
@@ -219,12 +217,17 @@ public class AuthenticationService {
     public AuthenticationResponse verificaCodigoAcesso(String codigo) {
         try {
             Token token = this.tokenRepository.findByCodeValid(codigo).orElseThrow(() -> new RuntimeException("Código invalido"));
-            if (token.expired && token.revoked){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Setor não encontrado.");
+            if (token.codigoExpirado){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Codigo Expirado. Realize o login novamente.");
             }
+
+
 
             AuthenticationResponse authenticationResponse = new AuthenticationResponse();
             authenticationResponse.setAccessToken(token.getToken());
+
+            token.setCodigoExpirado(true);
+            tokenRepository.save(token);
             return  authenticationResponse;
         }catch (Exception e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhum campo para atualização foi fornecido.");

@@ -36,6 +36,9 @@ public class Token {
     @Column(unique = true, name = "code_valid")
     public String codeValid;
 
+    @Column(name = "codigo_expirado")
+    public boolean codigoExpirado;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario")
     public Usuarios user;
