@@ -28,8 +28,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +61,9 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     private  final EmailService emailService;
+    private static final String key = "63686176655365637265743132333334"; // 16, 24, or 32 bytes
+    private static final String iv = "64617461536563726574313233333435"; // 16 bytes
+
 
     public AuthenticationResponse register(RegisterRequest request) throws ResponseStatusException {
 
@@ -116,10 +124,13 @@ public class AuthenticationService {
     }
 
     public void authenticate(AuthenticationRequest request) throws Exception {
+        String senha = decryptFromBase64(request.getPassword());
+
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
-                        request.getPassword()
+                        senha
                 )
         );
         var user = userRepository.findByEmail(request.getEmail())
@@ -233,4 +244,35 @@ public class AuthenticationService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhum campo para atualização foi fornecido.");
         }
     }
+    // Função para descriptografar uma string Base64 com AES
+    // Função para criptografar uma string para Base64 com AES
+    public static String decryptFromBase64(String base64) {
+        try {
+            byte[] keyBytes = hexStringToByteArray(key);
+            byte[] ivBytes = hexStringToByteArray(iv);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
+            byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(base64));
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Método auxiliar para converter uma string hexadecimal em um array de bytes
+    public static byte[] hexStringToByteArray(String hex) {
+        int len = hex.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+                    + Character.digit(hex.charAt(i + 1), 16));
+        }
+        return data;
+    }
+
+
 }
