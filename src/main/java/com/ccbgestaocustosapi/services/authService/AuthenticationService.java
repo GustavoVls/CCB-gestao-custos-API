@@ -275,7 +275,9 @@ public class AuthenticationService {
     }
 
     // Função para descriptografar uma string Base64 com AES
-    // Função para criptografar uma string para Base64 com AES
+    // Após implementar esse decrypt, a senha passada para o payload e descriptografada com a senha chave e
+    // depois passado de base64 para string para ser utilizada
+    // TODO: 26/06/2024 implementar no cadastro de usuário da mesma lógica para o processo funcianar de forma segura. 
     public static String decryptFromBase64(String base64) {
         try {
             byte[] keyBytes = hexStringToByteArray(key);
