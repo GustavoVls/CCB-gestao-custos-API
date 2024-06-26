@@ -15,14 +15,19 @@ import com.ccbgestaocustosapi.security.JwtService;
 import com.ccbgestaocustosapi.token.Token;
 import com.ccbgestaocustosapi.token.TokenRepository;
 import com.ccbgestaocustosapi.token.TokenType;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.InvalidCodeException;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,7 +45,7 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private  final UsersRepository userRepository;
+    private final UsersRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -60,19 +65,19 @@ public class AuthenticationService {
 
     private final JwtService jwtService;
 
-    private  final EmailService emailService;
+    private final EmailService emailService;
     private static final String key = "63686176655365637265743132333334"; // 16, 24, or 32 bytes
     private static final String iv = "64617461536563726574313233333435"; // 16 bytes
 
 
     public AuthenticationResponse register(RegisterRequest request) throws ResponseStatusException {
 
-        if (userRepository.existsByNome(request.getNome())){
+        if (userRepository.existsByNome(request.getNome())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome usuário já existente");
         }
 
 
-        if (userRepository.existsByEmail(request.getEmail())){
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email usuário já existente");
         }
 
@@ -98,9 +103,9 @@ public class AuthenticationService {
         userDTO.setUsuarioAdm(request.getUsuarioAdm());
         userDTO.setAdm(adm);
 
-        if (request.getUsuarioAdm().toString().equals("S")){
+        if (request.getUsuarioAdm().toString().equals("S")) {
             userDTO.setRole(Role.ADMIN);
-        }else{
+        } else {
             userDTO.setRole(Role.USER);
         }
 
@@ -123,24 +128,36 @@ public class AuthenticationService {
                 .build();
     }
 
-    public void authenticate(AuthenticationRequest request) throws Exception {
-        String senha = decryptFromBase64(request.getPassword());
+    public void authenticate(AuthenticationRequest request) {
+        try {
+            String senha = decryptFromBase64(request.getPassword());
 
+            try {
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                request.getEmail(),
+                                senha
+                        )
+                );
+            } catch (BadCredentialsException e) {
+                throw new BadCredentialException("Email ou Senha inválida.");
+            }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        senha
-                )
-        );
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(Exception::new);
-        var jwtToken = jwtService.generateToken(user);
+            var user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+            var jwtToken = jwtService.generateToken(user);
 
-        String codValid = generateActivationCode();
-        revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken,codValid);
-        sendValidationEmail(user, codValid);
+            String codValid = generateActivationCode();
+            revokeAllUserTokens(user);
+            saveUserToken(user, jwtToken, codValid);
+            sendValidationEmail(user, codValid);
+        } catch (InvalidCodeException | ResourceNotFoundException e) {
+            throw e;  // Re-lançar a exceção específica para ser capturada pelo controlador
+        } catch (BadCredentialException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro interno do servidor");
+        }
     }
 
     private void revokeAllUserTokens(Usuarios user) {
@@ -177,7 +194,7 @@ public class AuthenticationService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String userEmail;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
         refreshToken = authHeader.substring(7);
@@ -224,26 +241,39 @@ public class AuthenticationService {
         );
     }
 
+    @Transactional
 
     public AuthenticationResponse verificaCodigoAcesso(String codigo) {
         try {
-            Token token = this.tokenRepository.findByCodeValid(codigo).orElseThrow(() -> new RuntimeException("Código invalido"));
-            if (token.codigoExpirado){
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Codigo Expirado. Realize o login novamente.");
+            Token token = this.tokenRepository.findByCodeValid(codigo)
+                    .orElseThrow(() -> new InvalidCodeException("Código inválido"));
+
+            if (token.codigoExpirado) {
+                throw new ResourceNotFoundException("Código expirado. Realize o login novamente.");
             }
-
-
 
             AuthenticationResponse authenticationResponse = new AuthenticationResponse();
             authenticationResponse.setAccessToken(token.getToken());
 
             token.setCodigoExpirado(true);
             tokenRepository.save(token);
-            return  authenticationResponse;
-        }catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhum campo para atualização foi fornecido.");
+
+
+            Integer idUsuario = tokenRepository.findIdUsuarioByToken(token.getToken());
+
+            String usuarios = tokenRepository.findTipoPermissaoByIdUsuario(Long.valueOf(idUsuario));
+
+            authenticationResponse.setTipoPermissao(usuarios);
+
+
+            return authenticationResponse;
+        } catch (InvalidCodeException | ResourceNotFoundException e) {
+            throw e;  // Re-lançar a exceção específica para ser capturada pelo controlador
+        } catch (Exception e) {
+            throw new RuntimeException("Erro interno do servidor");
         }
     }
+
     // Função para descriptografar uma string Base64 com AES
     // Função para criptografar uma string para Base64 com AES
     public static String decryptFromBase64(String base64) {

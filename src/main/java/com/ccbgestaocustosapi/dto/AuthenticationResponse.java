@@ -14,4 +14,10 @@ public class AuthenticationResponse {
     @JsonProperty("access_token")
     private String accessToken;
 
+
+    @JsonProperty("tipo_permissao")
+    private String tipoPermissao;
+
+
+
 }
