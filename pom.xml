@@ -14,7 +14,7 @@
     <name>CCB-gestao-custos-API</name>
     <description>Projeto Backend CCB gestão custos</description>
     <properties>
-        <java.version>22</java.version>
+        <java.version>19</java.version>
     </properties>
     <dependencies>
         <dependency>
