@@ -21,6 +21,7 @@ public interface MenuAcessoRepository extends JpaRepository<MenuAcesso, Integer>
             \tma.id_acesso = cpa.id_acesso
             inner join ccb.cruzamento_perfil_usuario cpu on
             \tcpa.id_perfil = cpu.id_perfil
-            where cpu.id_usuario  = :idUsuario""", nativeQuery = true)
+            where cpu.id_usuario  = :idUsuario
+            order by ma.id_menu_pai is not null""", nativeQuery = true)
     List<Object[]> findAllMenuAcessoByIdUsuario(@Param("idUsuario") Integer idUsuario);
 }
