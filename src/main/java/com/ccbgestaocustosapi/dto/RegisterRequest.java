@@ -16,5 +16,6 @@ public class RegisterRequest {
     private Integer idAdm;
     private Integer idSetor;
     private Integer idIgr;
-    private Character usuarioAdm;
+    private Boolean usuarioAdm;
+    private Integer idPerfil;
 }

@@ -7,14 +7,12 @@ import com.ccbgestaocustosapi.dto.RegisterRequest;
 import com.ccbgestaocustosapi.email.EmailService;
 import com.ccbgestaocustosapi.email.EmailTemplateName;
 import com.ccbgestaocustosapi.models.*;
-import com.ccbgestaocustosapi.repository.AdministracaoRepository;
-import com.ccbgestaocustosapi.repository.CasaOracoesRepository;
-import com.ccbgestaocustosapi.repository.SetoresRepository;
-import com.ccbgestaocustosapi.repository.UsersRepository;
+import com.ccbgestaocustosapi.repository.*;
 import com.ccbgestaocustosapi.security.JwtService;
 import com.ccbgestaocustosapi.token.Token;
 import com.ccbgestaocustosapi.token.TokenRepository;
 import com.ccbgestaocustosapi.token.TokenType;
+import com.ccbgestaocustosapi.utils.MethodsUtils;
 import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.InvalidCodeException;
 import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.ResourceNotFoundException;
@@ -32,61 +30,42 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Base64;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-
     private final UsersRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
-
     private final AuthenticationManager authenticationManager;
-
     private final AdministracaoRepository admRepository;
-
-
     private final SetoresRepository setoresRepository;
-
-
     private final CasaOracoesRepository casaOracoesRepository;
-
     private final TokenRepository tokenRepository;
-
-
+    private final CruzamentoPerfilUsuarioRepository cruzamentoPerfilUsuarioRepository;
+    private final PerfilUsuarioRepository perfilUsuarioRepository;
     private final JwtService jwtService;
-
     private final EmailService emailService;
-    private static final String key = "63686176655365637265743132333334"; // 16, 24, or 32 bytes
-    private static final String iv = "64617461536563726574313233333435"; // 16 bytes
+    private final MethodsUtils methodsUtils;
 
 
+    @Transactional
     public AuthenticationResponse register(RegisterRequest request) throws ResponseStatusException {
 
         if (userRepository.existsByNome(request.getNome())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome usuário já existente");
         }
 
-
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email usuário já existente");
         }
 
-
-        Administracao adm;
+        Administracao adm = admRepository.findById(request.getIdAdm()).orElse(null);
         Setores setor = new Setores();
         CasaOracoes casaOracoes = new CasaOracoes();
 
-        adm = admRepository.findById(request.getIdAdm()).orElse(null);
 
         if (request.getIdSetor() != null) {
             setor = setoresRepository.findById(request.getIdSetor()).orElse(null);
@@ -103,7 +82,13 @@ public class AuthenticationService {
         userDTO.setUsuarioAdm(request.getUsuarioAdm());
         userDTO.setAdm(adm);
 
-        if (request.getUsuarioAdm().toString().equals("S")) {
+        CruzamentoPerfilUsuario cruzamentoPerfilUsuario = new CruzamentoPerfilUsuario();
+
+        Optional<Perfil> idPerfil = perfilUsuarioRepository.findById(request.getIdPerfil());
+
+        // verifica qual é oacesso do usuário para ser salvo na tabela cruzamentoPerfilUsuario e
+        // salvar o tipo permissão da tabela Usuarios
+        if (request.getUsuarioAdm().equals(true)) {
             userDTO.setRole(Role.ADMIN);
         } else {
             userDTO.setRole(Role.USER);
@@ -121,16 +106,21 @@ public class AuthenticationService {
         }
         userRepository.save(userDTO);
 
-        var jwtToken = jwtService.generateToken(userDTO);
+        cruzamentoPerfilUsuario.setIdPerfil(idPerfil.get());
+        cruzamentoPerfilUsuario.setIdUsuario(userDTO);
 
+        cruzamentoPerfilUsuarioRepository.save(cruzamentoPerfilUsuario);
+
+        var jwtToken = jwtService.generateToken(userDTO);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .build();
     }
 
+    @Transactional
     public void authenticate(AuthenticationRequest request) {
         try {
-            String senha = decryptFromBase64(request.getPassword());
+            String senha = this.methodsUtils.decryptFromBase64(request.getPassword());
 
             try {
                 authenticationManager.authenticate(
@@ -216,7 +206,6 @@ public class AuthenticationService {
         }
     }
 
-
     private String generateActivationCode() {
         String characters = "0123456789";
         StringBuilder codeBuilder = new StringBuilder();
@@ -242,7 +231,6 @@ public class AuthenticationService {
     }
 
     @Transactional
-
     public AuthenticationResponse verificaCodigoAcesso(String codigo) {
         try {
             Token token = this.tokenRepository.findByCodeValid(codigo)
@@ -258,13 +246,13 @@ public class AuthenticationService {
             token.setCodigoExpirado(true);
             tokenRepository.save(token);
 
-
+            // Encontra o idUsuario pelo token
             Integer idUsuario = tokenRepository.findIdUsuarioByToken(token.getToken());
 
-            String usuarios = tokenRepository.findTipoPermissaoByIdUsuario(Long.valueOf(idUsuario));
+            // Encontra o tipoPermissao pelo idUsuario
+            String tipoPermissao = tokenRepository.findTipoPermissaoByIdUsuario(Long.valueOf(idUsuario));
 
-            authenticationResponse.setTipoPermissao(usuarios);
-
+            authenticationResponse.setTipoPermissao(tipoPermissao);
 
             return authenticationResponse;
         } catch (InvalidCodeException | ResourceNotFoundException e) {
@@ -273,38 +261,4 @@ public class AuthenticationService {
             throw new RuntimeException("Erro interno do servidor");
         }
     }
-
-    // Função para descriptografar uma string Base64 com AES
-    // Após implementar esse decrypt, a senha passada para o payload e descriptografada com a senha chave e
-    // depois passado de base64 para string para ser utilizada
-    // TODO: 26/06/2024 implementar no cadastro de usuário da mesma lógica para o processo funcianar de forma segura. 
-    public static String decryptFromBase64(String base64) {
-        try {
-            byte[] keyBytes = hexStringToByteArray(key);
-            byte[] ivBytes = hexStringToByteArray(iv);
-
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
-            IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
-            byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(base64));
-            return new String(decryptedBytes, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    // Método auxiliar para converter uma string hexadecimal em um array de bytes
-    public static byte[] hexStringToByteArray(String hex) {
-        int len = hex.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i + 1), 16));
-        }
-        return data;
-    }
-
-
 }

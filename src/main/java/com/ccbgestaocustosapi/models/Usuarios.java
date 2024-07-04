@@ -51,15 +51,14 @@ public class Usuarios implements UserDetails {
     @Column(name = "email_usuario", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "usuario_adm", nullable = false, length = 1)
-    private Character usuarioAdm;
+    @Column(name = "usuario_Adm", nullable = false)
+    private Boolean usuarioAdm;
 
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_permissao", nullable = false, length = 50)
     private Role role;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

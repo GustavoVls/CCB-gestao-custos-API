@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CadastroDemandasController {
 
-    // TODO: 11/06/2024 Estudar forma de pegar nome do usuario ou até mesmo o usuário id através do token, para poder realizar validações. 
     private final CadastroDemandasService cadastroDemandasService;
 
 
