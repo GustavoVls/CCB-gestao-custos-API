@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -79,16 +80,17 @@ public class AuthenticationService {
         userDTO.setNome(request.getNome());
         userDTO.setEmail(request.getEmail());
         userDTO.setSenha(passwordEncoder.encode(request.getSenha()));
-        userDTO.setUsuarioAdm(request.getUsuarioAdm());
         userDTO.setAdm(adm);
 
         CruzamentoPerfilUsuario cruzamentoPerfilUsuario = new CruzamentoPerfilUsuario();
 
         Optional<Perfil> idPerfil = perfilUsuarioRepository.findById(request.getIdPerfil());
 
-        // verifica qual é oacesso do usuário para ser salvo na tabela cruzamentoPerfilUsuario e
-        // salvar o tipo permissão da tabela Usuarios
-        if (request.getUsuarioAdm().equals(true)) {
+        List<?> tipoPerfil = perfilUsuarioRepository.findTipoPerfilByIdPerfil(request.getIdPerfil());
+
+
+        // TODO: 08/07/2024  Todos os perfils que serão adicioandos deverá ser implementado nessa condição de cadastro e no SecutiryConfiguration
+        if (tipoPerfil.get(0).equals("ADM")) {
             userDTO.setRole(Role.ADMIN);
         } else {
             userDTO.setRole(Role.USER);
@@ -120,19 +122,6 @@ public class AuthenticationService {
     @Transactional
     public void authenticate(AuthenticationRequest request) {
         try {
-            String senha = this.methodsUtils.decryptFromBase64(request.getPassword());
-
-            try {
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                request.getEmail(),
-                                senha
-                        )
-                );
-            } catch (BadCredentialsException e) {
-                throw new BadCredentialException("Email ou Senha inválida.");
-            }
-
             var user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
             var jwtToken = jwtService.generateToken(user);
@@ -259,6 +248,25 @@ public class AuthenticationService {
             throw e;  // Re-lançar a exceção específica para ser capturada pelo controlador
         } catch (Exception e) {
             throw new RuntimeException("Erro interno do servidor");
+        }
+    }
+
+    public boolean validaUsuario(String email, String senha){
+        String senhaResult = this.methodsUtils.decryptFromBase64(senha);
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            email,
+                            senhaResult
+                    )
+            );
+
+            userRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+            return  true;
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialException("Email ou Senha inválida.");
         }
     }
 }

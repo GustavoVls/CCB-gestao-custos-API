@@ -36,4 +36,9 @@ public interface TokenRepository extends JpaRepository<Token, Integer> {
     String findTipoPermissaoByIdUsuario(@Param("idUsuario") Long idUsuario);
 
     Optional<Token> findByCodeValid(String codeValid);
+
+
+    @Query(value = "\n" +
+            "select t.id  from ccb.token t where t.expired = true", nativeQuery = true)
+    List<Object[]> findIdTokenExpired();
 }

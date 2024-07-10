@@ -51,9 +51,6 @@ public class Usuarios implements UserDetails {
     @Column(name = "email_usuario", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "usuario_Adm", nullable = false)
-    private Boolean usuarioAdm;
-
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
     @Enumerated(EnumType.STRING)

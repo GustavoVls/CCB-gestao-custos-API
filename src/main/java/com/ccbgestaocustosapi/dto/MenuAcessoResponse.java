@@ -11,6 +11,7 @@ public class MenuAcessoResponse {
     private Integer idMenu;
     private String label;
     private String icon;
+    private Boolean expanded;
     private List<Items> items = new ArrayList<>();
 
     @Data

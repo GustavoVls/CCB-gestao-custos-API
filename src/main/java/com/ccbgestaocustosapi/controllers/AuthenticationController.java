@@ -44,4 +44,12 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> getAcessoToken(@RequestParam(name = "codigo") String codigo) {
         return ResponseEntity.ok(authenticationService.verificaCodigoAcesso(codigo));
     }
+
+    @GetMapping("/valida-usuario-senha")
+    public ResponseEntity<?> getValidaUsuario(@RequestParam(name = "email") String email,
+                                                                   @RequestParam(name = "senha") String senha) {
+        return ResponseEntity.ok(authenticationService.validaUsuario(email,senha));
+    }
+
+
 }

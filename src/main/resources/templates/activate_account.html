@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Account Activation</title>
-  <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Activation</title>
+    <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -19,11 +19,7 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        .activation-code {
-            font-size: 36px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+
         .activation-link {
             display: block;
             text-align: center;
@@ -37,17 +33,83 @@
             text-decoration: none;
             border-radius: 5px;
         }
+
+      @media (max-width: 600px) {
+       .header-ccb{
+         font-size: 1rem;
+         margin-left: 5rem;
+       }
+          .h3-style {
+             margin-left: 3rem;
+         }
+
+        .h4-style {
+            margin-left: 6.2rem
+        }
+
+
+      .activation-code {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+
+
+
+
+      }
+
+       @media (min-width: 601px) {
+       .header-ccb{
+            font-size: 1.8rem;
+            margin-left: 14.3rem;
+       }
+
+        .h3-style{
+              font-size: 1.1rem;
+              margin-left: 14.7rem;
+         }
+
+         .h4-style {
+                margin-left: 17.6rem;
+                font-size: 1rem;
+         }
+
+        .p-style{
+            font-size: medium;
+        }
+
+
+        .activation-code {
+            font-size: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            margin-left: 4rem;
+        }
+
+
+      }
+
+
+
+
+
     </style>
 </head>
 <body>
 <div class="container">
-  <h1>Autenticação de Login</h1>
-  <p class="greeting" th:text="'Olá ' + ${username} + '.'"></p>
-  <p>Você realizou o login em CCB Gestões. Para processeguir com login, utilize o código de ativação abaixo.</p>
-  <div class="activation-code"><span th:text="${activation_code}"></span></div>
-<!--  <div class="activation-link">-->
-<!--    <a th:href="${confirmationUrl}" target="_blank">Activate your account</a>-->
-<!--  </div>-->
+    <!--  <header style="color: #119dcb; font-size:1.2rem; margin-left: 15rem">CCB-GESTÕES</header>-->
+    <!--  <h4 style="margin-left: 14rem">Autenticação de Login</h4>-->
+    <header style="color: #119dcb" class="header-ccb">CCB-GESTÕES</header>
+    <h3 class="h3-style">Autenticação de Login</h3>
+    <h4  class="greeting h4-style" th:text="'Olá ' + ${username} + '.'"></h4>
+    <p class="p-style">Você realizou o login em CCB Gestões. Para processeguir com login
+        utilize o código de ativação abaixo.</p>
+    <div class="activation-code"><span th:text="${activation_code}"></span></div>
+    <!--  <div class="activation-link">-->
+    <!--    <a th:href="${confirmationUrl}" target="_blank">Activate your account</a>-->
+    <!--  </div>-->
 </div>
 </body>
 </html>

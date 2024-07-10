@@ -20,7 +20,7 @@ public class MenuAcessoService {
     private final MenuAcessoRepository menuAcessoRepository;
 
     // TODO: 03/07/2024 verificar se existe uma maneira mais elaborada que dê mais desempenho a aplicação  
-    
+
     public List<MenuAcessoResponse> visualizacoesMenu(String token) {
 
         // Encontra o idUsuario pelo token
@@ -30,7 +30,7 @@ public class MenuAcessoService {
         List<Object[]> values = menuAcessoRepository.findAllMenuAcessoByIdUsuario(IdUsuarioFinded);
 
         List<FindMenuAcessoByIdResponse> listaDto = new ArrayList<>();
-        
+
         //adiciona o resultado da query em um dto
         for (Object[] resultado : values) {
             Integer idMenu = (Integer) resultado[0];
@@ -51,19 +51,20 @@ public class MenuAcessoService {
 
         List<MenuAcessoResponse> menuResultList = new ArrayList<>();
 
-        for(FindMenuAcessoByIdResponse value: listaDto){
+        for (FindMenuAcessoByIdResponse value : listaDto) {
 
             MenuAcessoResponse menuAcessoResponse = new MenuAcessoResponse();
-            
-            if (value.getIdMenuPai() == null){
+
+            if (value.getIdMenuPai() == null) {
                 menuAcessoResponse.setLabel(value.getNomeMenu());
                 menuAcessoResponse.setIcon(value.getIconClass());
                 menuAcessoResponse.setIdMenu(value.getIdMenu());
+                menuAcessoResponse.setExpanded(true);
                 menuResultList.add(menuAcessoResponse);
 
-            }else {
-                for (MenuAcessoResponse menu: menuResultList) {
-                    if ((value.getIdMenuPai().equals(menu.getIdMenu()))){
+            } else {
+                for (MenuAcessoResponse menu : menuResultList) {
+                    if ((value.getIdMenuPai().equals(menu.getIdMenu()))) {
                         menu.addItem(value.getNomeMenu(), value.getIconClass(), value.getPathRoute());
                     }
                 }
