@@ -59,7 +59,6 @@ public class MenuAcessoService {
                 menuAcessoResponse.setLabel(value.getNomeMenu());
                 menuAcessoResponse.setIcon(value.getIconClass());
                 menuAcessoResponse.setIdMenu(value.getIdMenu());
-                menuAcessoResponse.setExpanded(true);
                 menuResultList.add(menuAcessoResponse);
 
             } else {

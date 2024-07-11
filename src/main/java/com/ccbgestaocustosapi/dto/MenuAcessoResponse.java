@@ -11,21 +11,20 @@ public class MenuAcessoResponse {
     private Integer idMenu;
     private String label;
     private String icon;
-    private Boolean expanded;
-    private List<Items> items = new ArrayList<>();
+    private List<Children> children = new ArrayList<>();
 
     @Data
-    public static class Items {
+    public static class Children {
         private String label;
         private String icon;
-        private String routerLnk;
+        private String data;
     }
 
-    public void addItem(String label, String icon, String routerLnk) {
-        Items item = new Items();
+    public void addItem(String label, String icon, String data) {
+        Children item = new Children();
         item.setLabel(label);
         item.setIcon(icon);
-        item.setRouterLnk(routerLnk);
-        items.add(item);
+        item.setData(data);
+        children.add(item);
     }
 }
