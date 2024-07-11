@@ -53,12 +53,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             userEmail = jwtService.extractUsername(jwt);
         } catch (ExpiredJwtException ex) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("Token expired");
+            response.getWriter().write("Acesso do usuario expirado. Realize o login novamente.");
             response.getWriter().flush();
             return;
         } catch (Exception ex) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Unauthorized");
+            response.getWriter().write("Área restrita para usuarios sem acesso de Administrador.");
             response.getWriter().flush();
             return;
         }
