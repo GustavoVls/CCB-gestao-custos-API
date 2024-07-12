@@ -9,7 +9,7 @@ public class ArrayIndexOutOfBoundsExceptionHandler<T> implements ExceptionHandle
     @Override
     public ResponseEntity<PaginatedResponse<T>> handle(Exception e, String additionalMessage) {
         System.out.println("Handling ArrayIndexOutOfBoundsException: " + e.getMessage());
-        PaginatedResponse<T> response = new PaginatedResponse<>(null, 0, "Array index out of bounds: " + additionalMessage);
+        PaginatedResponse<T> response = new PaginatedResponse<>(null, 0, additionalMessage);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

@@ -23,13 +23,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.List;
@@ -56,11 +56,11 @@ public class AuthenticationService {
     public AuthenticationResponse register(RegisterRequest request) throws ResponseStatusException {
 
         if (userRepository.existsByNome(request.getNome())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome usuário já existente");
+            throw new BadCredentialException("Nome usuário já existente");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email usuário já existente");
+            throw new BadCredentialException("Email usuário já existente");
         }
 
         Administracao adm = admRepository.findById(request.getIdAdm()).orElse(null);

@@ -9,7 +9,7 @@ public class IllegalArgumentExceptionHandler<T> implements ExceptionHandler<T> {
     @Override
     public ResponseEntity<PaginatedResponse<T>> handle(Exception e, String additionalMessage) {
         System.out.println("Handling IllegalArgumentException: " + e.getMessage());
-        PaginatedResponse<T> response = new PaginatedResponse<>(null, 0, "Illegal argument exception: " + additionalMessage);
+        PaginatedResponse<T> response = new PaginatedResponse<>(null, 0, additionalMessage);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

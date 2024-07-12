@@ -3,15 +3,14 @@ package com.ccbgestaocustosapi.services;
 import com.ccbgestaocustosapi.models.Prioridades;
 import com.ccbgestaocustosapi.repository.PrioridadesRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -59,10 +58,10 @@ public class PrioridadesService {
             if (updated) {
                 this.prioridadesRepository.save(existingPrioridade);
             } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhum campo para atualização foi fornecido.");
+                throw new BadCredentialException("Nenhum campo para atualização foi fornecido.");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prioridade não encontrada.");
+            throw new BadCredentialException("Prioridade não encontrada.");
         }
     }
 
@@ -78,7 +77,7 @@ public class PrioridadesService {
                         "Realize primeiramente a remoção dos serivços vinculados para prosseguir com a remoção.");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id da Prioridade não encontrado para realizar a remoção.");
+            throw new BadCredentialException("Id da Prioridade não encontrado para realizar a remoção.");
         }
     }
 }

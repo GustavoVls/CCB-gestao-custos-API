@@ -1,6 +1,7 @@
 package com.ccbgestaocustosapi.utils.exceptions;
 
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import com.sun.jdi.InternalException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,10 @@ public class CentralExceptionHandler {
             }
         } else if (e instanceof InternalException) {
             exceptionType = ExceptionType.INTERNAL_ERROR;
+        } else if (e instanceof BadCredentialException badCredentialException) {
+            exceptionType = ExceptionType.BAD_REQUEST_EXCEPTION;
         }
+
 
         if (exceptionType != null) {
             try {

@@ -8,15 +8,14 @@ import com.ccbgestaocustosapi.repository.AdministracaoRepository;
 import com.ccbgestaocustosapi.repository.CasaOracoesRepository;
 import com.ccbgestaocustosapi.repository.SetoresRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -103,10 +102,10 @@ public class CasaOracoesService {
             if (updated) {
                 this.casaOracoesRepository.save(casaOracoesExistente);
             } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhum campo para atualização foi fornecido.");
+                throw new BadCredentialException("Nenhum campo para atualização foi fornecido.");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Casa de Oração não encontrada.");
+            throw new BadCredentialException( "Casa de Oração não encontrada.");
         }
     }
 
@@ -122,7 +121,7 @@ public class CasaOracoesService {
                         "Realize primeiramente a remoção dos serivços vinculados para prosseguir com a remoção.");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id da Casa de Oração não encontrado para realizar a remoção.");
+            throw new BadCredentialException("Id da Casa de Oração não encontrado para realizar a remoção.");
         }
 
     }

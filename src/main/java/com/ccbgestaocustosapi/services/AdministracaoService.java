@@ -3,6 +3,7 @@ package com.ccbgestaocustosapi.services;
 import com.ccbgestaocustosapi.models.Administracao;
 import com.ccbgestaocustosapi.repository.AdministracaoRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -90,7 +91,7 @@ public class AdministracaoService {
                         "Realize primeiramente a remoção dos serivços vinculados para prosseguir com a remoção.");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id da Administração não encontrado para realizar a remoção");
+            throw new BadCredentialException("Id da Administração não encontrado para realizar a remoção");
         }
     }
 }

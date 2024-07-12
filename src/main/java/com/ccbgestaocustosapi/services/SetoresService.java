@@ -6,14 +6,13 @@ import com.ccbgestaocustosapi.models.Setores;
 import com.ccbgestaocustosapi.repository.AdministracaoRepository;
 import com.ccbgestaocustosapi.repository.SetoresRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -66,10 +65,10 @@ public class SetoresService {
             if (updated) {
                 this.setoresRepository.save(setorExistente);
             } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhum campo para atualização foi fornecido.");
+                throw new BadCredentialException("Nenhum campo para atualização foi fornecido.");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Setor não encontrado.");
+            throw new BadCredentialException("Setor não encontrado.");
         }
 
     }
@@ -85,7 +84,7 @@ public class SetoresService {
                         "Realize primeiramente a remoção dos serivços vinculados para prosseguir  com a remoção");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id do setor não encontrado para realizar a remoção");
+            throw new BadCredentialException("Id do setor não encontrado para realizar a remoção");
         }
     }
 }

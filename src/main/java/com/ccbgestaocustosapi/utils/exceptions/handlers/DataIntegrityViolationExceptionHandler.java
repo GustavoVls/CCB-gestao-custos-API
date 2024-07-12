@@ -10,11 +10,11 @@ public class DataIntegrityViolationExceptionHandler<T> implements ExceptionHandl
     public ResponseEntity<PaginatedResponse<T>> handle(Exception e, String additionalMessage) {
         if (e instanceof DataIntegrityViolationException) {
             System.out.println("Handling DataIntegrityViolationException: " + e.getMessage());
-            PaginatedResponse<T> response = new PaginatedResponse<>(null, 0, "Data integrity violation: " + additionalMessage);
+            PaginatedResponse<T> response = new PaginatedResponse<>(null, 0, additionalMessage);
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         } else {
             // Caso a exceção não seja do tipo esperado, retorna um erro interno do servidor
-            PaginatedResponse<T> response = new PaginatedResponse<>(null, 0, "Unexpected exception: " + additionalMessage);
+            PaginatedResponse<T> response = new PaginatedResponse<>(null, 0, "Unexpected exception " + additionalMessage);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

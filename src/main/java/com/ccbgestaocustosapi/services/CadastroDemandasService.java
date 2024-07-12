@@ -4,14 +4,13 @@ import com.ccbgestaocustosapi.dto.CadastroDemandaRequest;
 import com.ccbgestaocustosapi.models.*;
 import com.ccbgestaocustosapi.repository.*;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -102,10 +101,10 @@ public class CadastroDemandasService {
             if (updated) {
                 this.cadastroDemandaRepository.save(existingDemanda);
             } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhum campo para atualização foi fornecido.");
+                throw new BadCredentialException("Nenhum campo para atualização foi fornecido.");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Demanda não encontrada.");
+            throw new BadCredentialException("Demanda não encontrada.");
         }
     }
 
@@ -114,7 +113,7 @@ public class CadastroDemandasService {
         if (idEncontrado.isPresent()) {
             this.cadastroDemandaRepository.deleteById(id);
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id do setor não encontrado para realizar a remoção");
+            throw new BadCredentialException("Id do setor não encontrado para realizar a remoção");
         }
     }
 }

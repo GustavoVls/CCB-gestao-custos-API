@@ -6,14 +6,13 @@ import com.ccbgestaocustosapi.models.CadastroReuniaoATDM;
 import com.ccbgestaocustosapi.repository.CadastroParticipantesRepository;
 import com.ccbgestaocustosapi.repository.CadastroReuniaoRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
+import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -82,10 +81,10 @@ public class CadastroParticipantesService {
             if (updated) {
                 this.cadastroParticipantesRepository.save(existingParticipantes);
             } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nenhum campo para atualização foi fornecido.");
+                throw new BadCredentialException("Nenhum campo para atualização foi fornecido.");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Participante não encontrado.");
+            throw new BadCredentialException("Participante não encontrado.");
         }
     }
 
@@ -97,7 +96,7 @@ public class CadastroParticipantesService {
         if (idEncontrado.isPresent()) {
             this.cadastroParticipantesRepository.deleteById(id);
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Id do participante não encontrado para realizar a remoção");
+            throw new BadCredentialException("Id do participante não encontrado para realizar a remoção");
         }
     }
 }
