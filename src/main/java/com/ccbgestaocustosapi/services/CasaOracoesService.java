@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,7 +30,13 @@ public class CasaOracoesService {
 
     private final SetoresRepository setoresRepository;
 
-    public PaginatedResponse<CasaOracoes> getAllCasaOracoes(int pageValue, Integer size) {
+    public PaginatedResponse<CasaOracoes> getAllCasaOracoes(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+
+        if (valueOrderBY != null){
+            Page<CasaOracoes> casaOracoesPage = this.casaOracoesRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+            return new PaginatedResponse<>(casaOracoesPage.getContent(), casaOracoesPage.getTotalElements());
+        }
+
         Page<CasaOracoes> casaOracoesPage = this.casaOracoesRepository.findAll(PageRequest.of(pageValue, size));
         return new PaginatedResponse<>(casaOracoesPage.getContent(), casaOracoesPage.getTotalElements());
     }

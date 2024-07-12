@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,9 +28,16 @@ public class CadastroDemandasService {
     private final UsersRepository usuariosRepository;
 
 
-    public PaginatedResponse<CadastroDemanda> getAllDemandas(int pageValue, Integer size) {
-        Page<CadastroDemanda> administracaoPage = this.cadastroDemandaRepository.findAll(PageRequest.of(pageValue, size));
-        return new PaginatedResponse<>(administracaoPage.getContent(), administracaoPage.getTotalElements());
+    public PaginatedResponse<CadastroDemanda> getAllDemandas(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+
+        if (valueOrderBY != null){
+            Page<CadastroDemanda> cadastroDemandaPage = this.cadastroDemandaRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+            return new PaginatedResponse<>(cadastroDemandaPage.getContent(), cadastroDemandaPage.getTotalElements());
+        }
+
+
+        Page<CadastroDemanda> cadastroDemandaPage = this.cadastroDemandaRepository.findAll(PageRequest.of(pageValue, size));
+        return new PaginatedResponse<>(cadastroDemandaPage.getContent(), cadastroDemandaPage.getTotalElements());
     }
 
     public PaginatedResponse<CadastroDemanda> getbyIdDemandas(Integer id) {

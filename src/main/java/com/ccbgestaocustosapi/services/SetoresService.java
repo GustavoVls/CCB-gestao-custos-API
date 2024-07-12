@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,8 +24,14 @@ public class SetoresService {
 
     private final AdministracaoRepository administracaoRepository;
 
-    public PaginatedResponse<Setores> getAllSetores(int page, Integer size) {
-        Page<Setores> setoresPage = this.setoresRepository.findAll(PageRequest.of(page, size));
+    public PaginatedResponse<Setores> getAllSetores(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+
+        if (valueOrderBY != null){
+            Page<Setores> setoresPage = this.setoresRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+            return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
+        }
+
+        Page<Setores> setoresPage = this.setoresRepository.findAll(PageRequest.of(pageValue, size));
         return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
     }
 

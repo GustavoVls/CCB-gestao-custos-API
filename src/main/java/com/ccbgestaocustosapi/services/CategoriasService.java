@@ -24,12 +24,12 @@ public class CategoriasService {
     public PaginatedResponse<Categorias> getAllCategorias(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
 
         if (valueOrderBY != null){
-            Page<Categorias> administracaoPage = this.categoriasRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
-            return new PaginatedResponse<>(administracaoPage.getContent(), administracaoPage.getTotalElements());
+            Page<Categorias> categoriasPage = this.categoriasRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+            return new PaginatedResponse<>(categoriasPage.getContent(), categoriasPage.getTotalElements());
         }
 
-        Page<Categorias> administracaoPage = this.categoriasRepository.findAll(PageRequest.of(pageValue, size));
-        return new PaginatedResponse<>(administracaoPage.getContent(), administracaoPage.getTotalElements());
+        Page<Categorias> categoriasPage = this.categoriasRepository.findAll(PageRequest.of(pageValue, size));
+        return new PaginatedResponse<>(categoriasPage.getContent(), categoriasPage.getTotalElements());
     }
 
     public PaginatedResponse<Categorias> getbyCategorias(Integer id) {

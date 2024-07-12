@@ -20,12 +20,14 @@ public class SetoresController {
     @GetMapping
     public ResponseEntity<PaginatedResponse<Setores>> findSetores(@RequestParam Integer page,
                                                                   @RequestParam Integer size,
-                                                                  @RequestParam(required = false) Integer id) {
+                                                                  @RequestParam(required = false) Integer id,
+                                                                  @RequestParam(required = false) String  valueOrderBY,
+                                                                  @RequestParam(required = false) boolean isOrderByAsc ) {
         try {
             // caso não tenha nenhum filtro, ele realizar um getAll
             if (id == null) {
                 int pageValue = page - 1;
-                PaginatedResponse<Setores> response = this.setoresService.getAllSetores(pageValue, size);
+                PaginatedResponse<Setores> response = this.setoresService.getAllSetores(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
             PaginatedResponse<Setores> response = this.setoresService.getByIdSetores(id);

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,8 +20,13 @@ import java.util.Optional;
 public class AdministracaoService {
     private final AdministracaoRepository administracaoRepository;
 
-    public PaginatedResponse<Administracao> getAllAdministracao(int page, int size) {
-        Page<Administracao> administracaoPage = this.administracaoRepository.findAll(PageRequest.of(page, size));
+    public PaginatedResponse<Administracao> getAllAdministracao(int pageValue, int size, String valueOrderBY, boolean isOrderByAsc) {
+        if (valueOrderBY != null){
+            Page<Administracao> administracaoPage = this.administracaoRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+            return new PaginatedResponse<>(administracaoPage.getContent(), administracaoPage.getTotalElements());
+        }
+
+        Page<Administracao> administracaoPage = this.administracaoRepository.findAll(PageRequest.of(pageValue, size));
         return new PaginatedResponse<>(administracaoPage.getContent(), administracaoPage.getTotalElements());
     }
 

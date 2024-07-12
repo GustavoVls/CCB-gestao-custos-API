@@ -18,12 +18,14 @@ public class AdministracaoController {
     @GetMapping
     public ResponseEntity<PaginatedResponse<Administracao>> findAdministracao(@RequestParam Integer page,
                                                                               @RequestParam Integer size,
-                                                                              @RequestParam(required = false) Integer id) {
+                                                                              @RequestParam(required = false) Integer id,
+                                                                              @RequestParam(required = false) String valueOrderBY,
+                                                                              @RequestParam(required = false) boolean isOrderByAsc) {
         try {
             // caso não tenha nenhum filtro, ele realizar um getAll
             if (id == null) {
                 int pageValue = page - 1;
-                PaginatedResponse<Administracao> response = this.administracaoService.getAllAdministracao(pageValue, size);
+                PaginatedResponse<Administracao> response = this.administracaoService.getAllAdministracao(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
             PaginatedResponse<Administracao> response = this.administracaoService.getbyIdAdministracao(id);

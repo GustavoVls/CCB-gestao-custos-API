@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,7 +23,13 @@ public class CadastroParticipantesService {
     private final CadastroParticipantesRepository cadastroParticipantesRepository;
     private final CadastroReuniaoRepository cadastroReuniaoRepository;
 
-    public PaginatedResponse<CadastroParticipantesATDM> getAllParticipantes(int pageValue, Integer size) {
+    public PaginatedResponse<CadastroParticipantesATDM> getAllParticipantes(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+
+        if (valueOrderBY != null){
+            Page<CadastroParticipantesATDM> setoresPage = this.cadastroParticipantesRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+            return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
+        }
+
         Page<CadastroParticipantesATDM> setoresPage = this.cadastroParticipantesRepository.findAll(PageRequest.of(pageValue, size));
         return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
 

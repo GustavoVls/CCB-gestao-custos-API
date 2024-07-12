@@ -19,12 +19,14 @@ public class CadastroParticipantesController {
     @GetMapping
     public ResponseEntity<PaginatedResponse<CadastroParticipantesATDM>> findParticipantesAtdm(@RequestParam Integer page,
                                                                                               @RequestParam Integer size,
-                                                                                              @RequestParam(required = false) Integer id) {
+                                                                                              @RequestParam(required = false) Integer id,
+                                                                                              @RequestParam (required = false) String valueOrderBY,
+                                                                                              @RequestParam(required = false) boolean isOrderByAsc ) {
         try {
             // caso não tenha nenhum filtro, ele realizar um getAll
             if (id == null) {
                 int pageValue = page - 1;
-                PaginatedResponse<CadastroParticipantesATDM> response = this.cadastroParticipantesService.getAllParticipantes(pageValue, size);
+                PaginatedResponse<CadastroParticipantesATDM> response = this.cadastroParticipantesService.getAllParticipantes(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
             PaginatedResponse<CadastroParticipantesATDM> response = this.cadastroParticipantesService.getByIdParticipantes(id);

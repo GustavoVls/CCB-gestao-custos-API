@@ -19,12 +19,14 @@ public class CadastroReuniaoController {
     @GetMapping
     public ResponseEntity<PaginatedResponse<CadastroReuniaoATDM>> findReunioesCadastradas(@RequestParam Integer page,
                                                                                           @RequestParam Integer size,
-                                                                                          @RequestParam(required = false) Integer id) {
+                                                                                          @RequestParam(required = false) Integer id,
+                                                                                          @RequestParam (required = false) String valueOrderBY,
+                                                                                          @RequestParam(required = false) boolean isOrderByAsc ) {
         try {
             // caso não tenha nenhum filtro, ele realizar um getAll
             if (id == null) {
                 int pageValue = page - 1;
-                PaginatedResponse<CadastroReuniaoATDM> response = this.cadastroReuniaoService.getAllReunioesCadastradas(pageValue, size);
+                PaginatedResponse<CadastroReuniaoATDM> response = this.cadastroReuniaoService.getAllReunioesCadastradas(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
             PaginatedResponse<CadastroReuniaoATDM> response = this.cadastroReuniaoService.getbyIdReunioesCadastradas(id);

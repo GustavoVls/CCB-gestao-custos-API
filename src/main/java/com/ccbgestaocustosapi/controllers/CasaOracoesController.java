@@ -22,12 +22,14 @@ public class CasaOracoesController {
     @GetMapping
     public ResponseEntity<PaginatedResponse<CasaOracoes>> findSetores(@RequestParam Integer page,
                                                                       @RequestParam Integer size,
-                                                                      @RequestParam(required = false) Integer id) {
+                                                                      @RequestParam(required = false) Integer id,
+                                                                      @RequestParam (required = false) String valueOrderBY,
+                                                                      @RequestParam(required = false) boolean isOrderByAsc ) {
         try {
             // caso não tenha nenhum filtro, ele realizar um getAll
             if (id == null) {
                 int pageValue = page - 1;
-                PaginatedResponse<CasaOracoes> response = this.casaOracoesService.getAllCasaOracoes(pageValue, size);
+                PaginatedResponse<CasaOracoes> response = this.casaOracoesService.getAllCasaOracoes(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
             PaginatedResponse<CasaOracoes> response = this.casaOracoesService.getByIdCasaOracoes(id);

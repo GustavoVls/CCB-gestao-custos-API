@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,9 +19,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PrioridadesService {
     private final PrioridadesRepository prioridadesRepository;
-    public PaginatedResponse<Prioridades> getAllPrioridades(int pageValue, Integer size) {
-        Page<Prioridades> administracaoPage = this.prioridadesRepository.findAll(PageRequest.of(pageValue, size));
-        return new PaginatedResponse<>(administracaoPage.getContent(), administracaoPage.getTotalElements());
+    public PaginatedResponse<Prioridades> getAllPrioridades(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+
+        if (valueOrderBY != null){
+            Page<Prioridades> prioridadesPage = this.prioridadesRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+            return new PaginatedResponse<>(prioridadesPage.getContent(), prioridadesPage.getTotalElements());
+        }
+
+        Page<Prioridades> prioridadesPage = this.prioridadesRepository.findAll(PageRequest.of(pageValue, size));
+        return new PaginatedResponse<>(prioridadesPage.getContent(), prioridadesPage.getTotalElements());
     }
 
     public PaginatedResponse<Prioridades> getbyPrioridades(Integer id) {

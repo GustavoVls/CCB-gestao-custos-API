@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,7 +20,13 @@ import java.util.Optional;
 public class CadastroReuniaoService {
     private final CadastroReuniaoRepository cadastroReuniaoRepository;
 
-    public PaginatedResponse<CadastroReuniaoATDM> getAllReunioesCadastradas(int pageValue, Integer size) {
+    public PaginatedResponse<CadastroReuniaoATDM> getAllReunioesCadastradas(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+
+        if (valueOrderBY != null){
+            Page<CadastroReuniaoATDM> reunioesCadastradasPage = this.cadastroReuniaoRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+            return new PaginatedResponse<>(reunioesCadastradasPage.getContent(), reunioesCadastradasPage.getTotalElements());
+        }
+
         Page<CadastroReuniaoATDM> reunioesCadastradasPage = this.cadastroReuniaoRepository.findAll(PageRequest.of(pageValue, size));
         return new PaginatedResponse<>(reunioesCadastradasPage.getContent(), reunioesCadastradasPage.getTotalElements());
     }

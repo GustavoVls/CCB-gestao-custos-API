@@ -20,12 +20,14 @@ public class PrioridadesController {
     @GetMapping
     public ResponseEntity<PaginatedResponse<Prioridades>> findPrioridades(@RequestParam Integer page,
                                                                           @RequestParam Integer size,
-                                                                          @RequestParam(required = false) Integer id) {
+                                                                          @RequestParam(required = false) Integer id,
+                                                                          @RequestParam (required = false) String valueOrderBY,
+                                                                          @RequestParam(required = false) boolean isOrderByAsc ) {
         try {
             // caso não tenha nenhum filtro, ele realizar um getAll
             if (id == null) {
                 int pageValue = page - 1;
-                PaginatedResponse<Prioridades> response = this.prioridadesService.getAllPrioridades(pageValue, size);
+                PaginatedResponse<Prioridades> response = this.prioridadesService.getAllPrioridades(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
             PaginatedResponse<Prioridades> response = this.prioridadesService.getbyPrioridades(id);
