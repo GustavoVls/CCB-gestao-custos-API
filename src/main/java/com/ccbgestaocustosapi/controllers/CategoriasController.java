@@ -21,12 +21,14 @@ public class CategoriasController {
     @GetMapping
     public ResponseEntity<PaginatedResponse<Categorias>> findCategorias(@RequestParam Integer page,
                                                                         @RequestParam Integer size,
-                                                                        @RequestParam(required = false) Integer id) {
+                                                                        @RequestParam(required = false) Integer id,
+                                                                        @RequestParam (required = false) String valueOrderBY,
+                                                                        @RequestParam(required = false) boolean isOrderByAsc ) {
         try {
             // caso não tenha nenhum filtro, ele realizar um getAll
             if (id == null) {
                 int pageValue = page - 1;
-                PaginatedResponse<Categorias> response = this.categoriasService.getAllCategorias(pageValue, size);
+                PaginatedResponse<Categorias> response = this.categoriasService.getAllCategorias(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
             PaginatedResponse<Categorias> response = this.categoriasService.getbyCategorias(id);

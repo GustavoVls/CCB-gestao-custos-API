@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,7 +21,13 @@ public class CategoriasService {
 
     private final CategoriasRepository categoriasRepository;
 
-    public PaginatedResponse<Categorias> getAllCategorias(int pageValue, Integer size) {
+    public PaginatedResponse<Categorias> getAllCategorias(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+
+        if (valueOrderBY != null){
+            Page<Categorias> administracaoPage = this.categoriasRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+            return new PaginatedResponse<>(administracaoPage.getContent(), administracaoPage.getTotalElements());
+        }
+
         Page<Categorias> administracaoPage = this.categoriasRepository.findAll(PageRequest.of(pageValue, size));
         return new PaginatedResponse<>(administracaoPage.getContent(), administracaoPage.getTotalElements());
     }
@@ -48,6 +55,12 @@ public class CategoriasService {
                 existingCategoria.setDescricaoCategoria(categorias.getDescricaoCategoria()) ;
                 updated = true;
             }
+
+            if (categorias.getTipoCategoria() != null) {
+                existingCategoria.setTipoCategoria(categorias.getTipoCategoria());
+                updated = true;
+            }
+
 
             if (updated) {
                 this.categoriasRepository.save(existingCategoria);
