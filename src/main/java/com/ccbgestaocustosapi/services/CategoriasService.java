@@ -1,5 +1,6 @@
 package com.ccbgestaocustosapi.services;
 
+import com.ccbgestaocustosapi.dto.CategoriaFiltroResponse;
 import com.ccbgestaocustosapi.models.Categorias;
 import com.ccbgestaocustosapi.repository.CategoriasRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,13 +30,31 @@ public class CategoriasService {
             return new PaginatedResponse<>(categoriasPage.getContent(), categoriasPage.getTotalElements());
         }
 
-        Page<Categorias> categoriasPage = this.categoriasRepository.findAll(PageRequest.of(pageValue, size));
+        Page<Categorias> categoriasPage = this.categoriasRepository.findAll(PageRequest.of(pageValue, size, Sort.by(Sort.Direction.ASC, "idCategoria")));
         return new PaginatedResponse<>(categoriasPage.getContent(), categoriasPage.getTotalElements());
     }
 
-    public PaginatedResponse<Categorias> getbyCategorias(Integer id) {
-        Optional<Categorias> resultId = this.categoriasRepository.findById(id);
-        return new PaginatedResponse<>(resultId.stream().toList(), 0);
+    public PaginatedResponse<CategoriaFiltroResponse> getbyCategorias(String descricao, String valueOrderBY, boolean isOrderByAsc) {
+
+        List<Object[]> resultId;
+        if (valueOrderBY == null){
+            resultId = this.categoriasRepository.findByDescricao(descricao);
+        }else {
+            resultId = this.categoriasRepository.findByDescricaoOrderBy(descricao, valueOrderBY, isOrderByAsc ? "asc" : "desc");
+        }
+
+        List<CategoriaFiltroResponse> categoriasDTOs = new ArrayList<>();
+
+        for (Object[] resultado : resultId) {
+            Integer totalRecords = ((Number) resultado[0]).intValue();
+            Integer idCategoria = ((Number) resultado[1]).intValue();
+            String descricaoCategoria = (String) resultado[2];
+            String tipoCategoria = (String) resultado[3];
+
+            CategoriaFiltroResponse dto = new CategoriaFiltroResponse(idCategoria, descricaoCategoria, tipoCategoria, totalRecords);
+            categoriasDTOs.add(dto);
+        }
+        return new PaginatedResponse<>(categoriasDTOs.stream().toList(), categoriasDTOs.isEmpty() ? 0 : categoriasDTOs.get(0).getTotalRecords());
     }
 
     @Transactional

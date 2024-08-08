@@ -1,6 +1,7 @@
 package com.ccbgestaocustosapi.controllers;
 
 
+import com.ccbgestaocustosapi.dto.CategoriaFiltroResponse;
 import com.ccbgestaocustosapi.models.Categorias;
 import com.ccbgestaocustosapi.services.CategoriasService;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
@@ -19,24 +20,22 @@ public class CategoriasController {
 
 
     @GetMapping
-    public ResponseEntity<PaginatedResponse<Categorias>> findCategorias(@RequestParam Integer page,
+    public ResponseEntity<PaginatedResponse<?>> findCategorias(@RequestParam Integer page,
                                                                         @RequestParam Integer size,
-                                                                        @RequestParam(required = false) Integer id,
+                                                                        @RequestParam(required = false) String descricao,
                                                                         @RequestParam (required = false) String valueOrderBY,
                                                                         @RequestParam(required = false) boolean isOrderByAsc ) {
-        try {
             // caso não tenha nenhum filtro, ele realizar um getAll
-            if (id == null) {
+            if (descricao == null) {
                 int pageValue = page - 1;
                 PaginatedResponse<Categorias> response = this.categoriasService.getAllCategorias(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
-            PaginatedResponse<Categorias> response = this.categoriasService.getbyCategorias(id);
+            PaginatedResponse<CategoriaFiltroResponse> response = this.categoriasService.getbyCategorias(descricao, valueOrderBY, isOrderByAsc);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return CentralExceptionHandler.handleException(e, "Erro na busca de dados de Categorias.");
-        }
+
     }
+
 
 
     @PostMapping

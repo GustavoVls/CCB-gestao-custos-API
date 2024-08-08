@@ -1,6 +1,8 @@
 package com.ccbgestaocustosapi.services;
 
+import com.ccbgestaocustosapi.dto.SetoresFiltroResponse;
 import com.ccbgestaocustosapi.dto.UsuariosRequest;
+import com.ccbgestaocustosapi.dto.dropdowns.AdmDropdownResponse;
 import com.ccbgestaocustosapi.models.Administracao;
 import com.ccbgestaocustosapi.models.Setores;
 import com.ccbgestaocustosapi.repository.AdministracaoRepository;
@@ -14,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,18 +29,39 @@ public class SetoresService {
 
     public PaginatedResponse<Setores> getAllSetores(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
 
-        if (valueOrderBY != null){
-            Page<Setores> setoresPage = this.setoresRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+        if (valueOrderBY != null) {
+            Page<Setores> setoresPage = this.setoresRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ? Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
             return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
         }
 
-        Page<Setores> setoresPage = this.setoresRepository.findAll(PageRequest.of(pageValue, size));
+        Page<Setores> setoresPage = this.setoresRepository.findAll(PageRequest.of(pageValue, size, Sort.by(Sort.Direction.ASC, "setorId" )));
         return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
     }
 
-    public PaginatedResponse<Setores> getByIdSetores(Integer id) {
-        Optional<Setores> resultId = this.setoresRepository.findById(id);
-        return new PaginatedResponse<>(resultId.stream().toList(), 0);
+    public PaginatedResponse<SetoresFiltroResponse> getByNomeSetores(String nomeSetor,  String valueOrderBY, boolean isOrderByAsc) {
+        List<Object[]> resultId;
+
+        if (valueOrderBY == null){
+            resultId = this.setoresRepository.findByNomeSetor(nomeSetor);
+        }else {
+            resultId = this.setoresRepository.findByNomeSetorOrderBy(nomeSetor, valueOrderBY, isOrderByAsc ? "asc" : "desc");
+        }
+
+        List<SetoresFiltroResponse> setoresDTOs = new ArrayList<>();
+
+
+
+        for (Object[] resultado : resultId) {
+            Integer totalRecords = ((Number) resultado[0]).intValue();
+            Integer setorId = ((Number) resultado[1]).intValue();
+            Integer admId = ((Number) resultado[2]).intValue();
+            String setorNome = ((String) resultado[3]);
+            String admNome = (String) resultado[4];
+
+            SetoresFiltroResponse dto = new SetoresFiltroResponse(setorId, admId, setorNome, admNome, totalRecords);
+            setoresDTOs.add(dto);
+        }
+        return new PaginatedResponse<>(setoresDTOs.stream().toList(), setoresDTOs.isEmpty() ? 0 : setoresDTOs.get(0).getTotalRecords());
     }
 
     public void createNewSetores(UsuariosRequest usuariosRequest) {
@@ -86,5 +111,22 @@ public class SetoresService {
         } else {
             throw new BadCredentialException("Id do setor não encontrado para realizar a remoção");
         }
+    }
+
+    public List<AdmDropdownResponse> getDropdownAdm() {
+        List<Object[]> dropdownAdmList = this.administracaoRepository.findAllDropdownAdm();
+
+
+        List<AdmDropdownResponse> admDropdownDto = new ArrayList<>();
+
+        for (Object[] resultado : dropdownAdmList) {
+            Integer admId = ((Number) resultado[0]).intValue();
+            String nomeAdm = ((String) resultado[1]);
+
+            AdmDropdownResponse dto = new AdmDropdownResponse(nomeAdm, admId);
+            admDropdownDto.add(dto);
+        }
+
+        return admDropdownDto;
     }
 }

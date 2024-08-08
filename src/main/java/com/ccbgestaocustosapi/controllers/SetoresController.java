@@ -1,6 +1,7 @@
 package com.ccbgestaocustosapi.controllers;
 
 
+import com.ccbgestaocustosapi.dto.SetoresFiltroResponse;
 import com.ccbgestaocustosapi.dto.UsuariosRequest;
 import com.ccbgestaocustosapi.models.Setores;
 import com.ccbgestaocustosapi.services.SetoresService;
@@ -18,23 +19,25 @@ public class SetoresController {
     private final SetoresService setoresService;
 
     @GetMapping
-    public ResponseEntity<PaginatedResponse<Setores>> findSetores(@RequestParam Integer page,
-                                                                  @RequestParam Integer size,
-                                                                  @RequestParam(required = false) Integer id,
-                                                                  @RequestParam(required = false) String  valueOrderBY,
-                                                                  @RequestParam(required = false) boolean isOrderByAsc ) {
-        try {
-            // caso não tenha nenhum filtro, ele realizar um getAll
-            if (id == null) {
-                int pageValue = page - 1;
-                PaginatedResponse<Setores> response = this.setoresService.getAllSetores(pageValue, size, valueOrderBY, isOrderByAsc);
-                return ResponseEntity.ok(response);
-            }
-            PaginatedResponse<Setores> response = this.setoresService.getByIdSetores(id);
+    public ResponseEntity<PaginatedResponse<?>> findSetores(@RequestParam Integer page,
+                                                            @RequestParam Integer size,
+                                                            @RequestParam(required = false) String nomeSetor,
+                                                            @RequestParam(required = false) String valueOrderBY,
+                                                            @RequestParam(required = false) boolean isOrderByAsc) {
+        // caso não tenha nenhum filtro, ele realizar um getAll
+        if (nomeSetor == null) {
+            int pageValue = page - 1;
+            PaginatedResponse<Setores> response = this.setoresService.getAllSetores(pageValue, size, valueOrderBY, isOrderByAsc);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return CentralExceptionHandler.handleException(e, "Erro na busca de dados de setores.");
         }
+        PaginatedResponse<SetoresFiltroResponse> response = this.setoresService.getByNomeSetores(nomeSetor, valueOrderBY, isOrderByAsc);
+        return ResponseEntity.ok(response);
+
+    }
+
+    @GetMapping(path = "dropdown-adm")
+    public ResponseEntity<?> dropdownAdm() {
+        return ResponseEntity.ok(this.setoresService.getDropdownAdm());
     }
 
     @PostMapping
