@@ -1,5 +1,6 @@
 package com.ccbgestaocustosapi.controllers;
 
+import com.ccbgestaocustosapi.dto.PrioridadeFiltroResponse;
 import com.ccbgestaocustosapi.models.Prioridades;
 import com.ccbgestaocustosapi.services.PrioridadesService;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
@@ -18,23 +19,19 @@ public class PrioridadesController {
 
 
     @GetMapping
-    public ResponseEntity<PaginatedResponse<Prioridades>> findPrioridades(@RequestParam Integer page,
+    public ResponseEntity<PaginatedResponse<?>> findPrioridades(@RequestParam Integer page,
                                                                           @RequestParam Integer size,
-                                                                          @RequestParam(required = false) Integer id,
+                                                                          @RequestParam(required = false) String nomePrioridade,
                                                                           @RequestParam (required = false) String valueOrderBY,
                                                                           @RequestParam(required = false) boolean isOrderByAsc ) {
-        try {
             // caso não tenha nenhum filtro, ele realizar um getAll
-            if (id == null) {
+            if (nomePrioridade == null) {
                 int pageValue = page - 1;
                 PaginatedResponse<Prioridades> response = this.prioridadesService.getAllPrioridades(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
-            PaginatedResponse<Prioridades> response = this.prioridadesService.getbyPrioridades(id);
+            PaginatedResponse<PrioridadeFiltroResponse> response = this.prioridadesService.getbyPrioridades(nomePrioridade,valueOrderBY, isOrderByAsc );
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return CentralExceptionHandler.handleException(e, "Erro na busca de dados de Prioridades.");
-        }
     }
 
 

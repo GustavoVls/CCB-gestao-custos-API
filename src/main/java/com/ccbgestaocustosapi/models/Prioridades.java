@@ -19,7 +19,7 @@ public class Prioridades {
     @SequenceGenerator(schema = "CCB", name = "prioridades_prioridade_id_seq",
             sequenceName = "prioridades_prioridade_id_seq", allocationSize = 1)
     @Column(name = "prioridade_id", nullable = false)
-    private Integer idCategoria;
+    private Integer idPrioridade;
     @Column(name = "prioridade_nome", nullable = false, length = 100)
     private String nomePrioridade;
 

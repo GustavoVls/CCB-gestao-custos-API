@@ -1,5 +1,6 @@
 package com.ccbgestaocustosapi.services;
 
+import com.ccbgestaocustosapi.dto.PrioridadeFiltroResponse;
 import com.ccbgestaocustosapi.models.Prioridades;
 import com.ccbgestaocustosapi.repository.PrioridadesRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,9 +32,27 @@ public class PrioridadesService {
         return new PaginatedResponse<>(prioridadesPage.getContent(), prioridadesPage.getTotalElements());
     }
 
-    public PaginatedResponse<Prioridades> getbyPrioridades(Integer id) {
-        Optional<Prioridades> resultId = this.prioridadesRepository.findById(id);
-        return new PaginatedResponse<>(resultId.stream().toList(), 0);
+    public PaginatedResponse<PrioridadeFiltroResponse> getbyPrioridades(String nomePrioridade, String valueOrderBY, boolean isOrderByAsc) {
+
+        List<Object[]> resultId;
+        if (valueOrderBY == null){
+            resultId = this.prioridadesRepository.findByNomePrioridade(nomePrioridade);
+        }else {
+            resultId = this.prioridadesRepository.findByNomePrioridadeOrderBy(nomePrioridade, valueOrderBY, isOrderByAsc ? "asc" : "desc");
+        }
+
+        List<PrioridadeFiltroResponse> prioridadesDTOs = new ArrayList<>();
+
+        for (Object[] resultado : resultId) {
+            Integer totalRecords = ((Number) resultado[0]).intValue();
+            Integer prioridadeId = ((Number) resultado[1]).intValue();
+            String  prioridadeNome = (String) resultado[2];
+
+            PrioridadeFiltroResponse dto = new PrioridadeFiltroResponse(prioridadeId, prioridadeNome, totalRecords);
+            prioridadesDTOs.add(dto);
+        }
+
+        return new PaginatedResponse<>(prioridadesDTOs.stream().toList(), 0);
     }
 
     @Transactional
@@ -44,7 +65,7 @@ public class PrioridadesService {
     @Transactional
     public void updatePrioridade(Prioridades prioridades) {
 
-        Optional<Prioridades> idFindValues = this.prioridadesRepository.findById(prioridades.getIdCategoria());
+        Optional<Prioridades> idFindValues = this.prioridadesRepository.findById(prioridades.getIdPrioridade());
 
         if (idFindValues.isPresent()) {
             Prioridades existingPrioridade = idFindValues.get();
