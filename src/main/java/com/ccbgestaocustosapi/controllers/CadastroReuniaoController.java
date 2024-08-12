@@ -19,17 +19,20 @@ public class CadastroReuniaoController {
     @GetMapping
     public ResponseEntity<PaginatedResponse<CadastroReuniaoATDM>> findReunioesCadastradas(@RequestParam Integer page,
                                                                                           @RequestParam Integer size,
-                                                                                          @RequestParam(required = false) Integer id,
+                                                                                          @RequestParam(required = false) String descricao,
+                                                                                          @RequestParam(required = false) String dataInicial,
+                                                                                          @RequestParam(required = false) String dataFinal,
                                                                                           @RequestParam (required = false) String valueOrderBY,
                                                                                           @RequestParam(required = false) boolean isOrderByAsc ) {
         try {
             // caso não tenha nenhum filtro, ele realizar um getAll
-            if (id == null) {
+            if (descricao == null && dataInicial == null && dataFinal == null) {
                 int pageValue = page - 1;
                 PaginatedResponse<CadastroReuniaoATDM> response = this.cadastroReuniaoService.getAllReunioesCadastradas(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
-            PaginatedResponse<CadastroReuniaoATDM> response = this.cadastroReuniaoService.getbyIdReunioesCadastradas(id);
+            PaginatedResponse<CadastroReuniaoATDM> response = this.cadastroReuniaoService.getbyIdReunioesCadastradas(descricao, dataInicial, dataFinal, valueOrderBY, isOrderByAsc,
+                    isOrderByAsc ? "asc" : "desc");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return CentralExceptionHandler.handleException(e, "Erro na busca de dados da Reuniões cadastradas.");
