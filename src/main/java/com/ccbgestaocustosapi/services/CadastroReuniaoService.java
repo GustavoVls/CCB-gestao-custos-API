@@ -1,5 +1,6 @@
 package com.ccbgestaocustosapi.services;
 
+import com.ccbgestaocustosapi.dto.CadastroReunioesRequest;
 import com.ccbgestaocustosapi.models.CadastroReuniaoATDM;
 import com.ccbgestaocustosapi.repository.CadastroReuniaoRepository;
 import com.ccbgestaocustosapi.utils.DataConverter;
@@ -101,13 +102,15 @@ public class CadastroReuniaoService {
     }
 
     @Transactional
-    public void createNewCadastroReuniao(CadastroReuniaoATDM cadastroReuniaoATDM) {
+    public void createNewCadastroReuniao(CadastroReunioesRequest cadastroReuniaoATDM) {
+        LocalDateTime dateInicial = DataConverter.convertStringToDate(cadastroReuniaoATDM.getReuniaoDataIni());
+        LocalDateTime dateFinal = DataConverter.convertStringToDate(cadastroReuniaoATDM.getReuniaoDataFim());
 
         CadastroReuniaoATDM cadastraReuniao = new CadastroReuniaoATDM();
         cadastraReuniao.setReuniaoDescricao(cadastroReuniaoATDM.getReuniaoDescricao());
-        cadastraReuniao.setReuniaoData(cadastroReuniaoATDM.getReuniaoData());
-        cadastraReuniao.setReuniaoDataIni(cadastroReuniaoATDM.getReuniaoDataIni());
-        cadastraReuniao.setReuniaoDataFim(cadastroReuniaoATDM.getReuniaoDataFim());
+        cadastraReuniao.setReuniaoData(LocalDateTime.now());
+        cadastraReuniao.setReuniaoDataIni(dateInicial);
+        cadastraReuniao.setReuniaoDataFim(dateFinal);
         cadastraReuniao.setReuniaoStatus(cadastroReuniaoATDM.getReuniaoStatus());
         cadastraReuniao.setReuniaoAta(cadastroReuniaoATDM.getReuniaoAta());
         this.cadastroReuniaoRepository.save(cadastraReuniao);

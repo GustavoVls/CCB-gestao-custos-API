@@ -1,6 +1,7 @@
 package com.ccbgestaocustosapi.controllers;
 
 
+import com.ccbgestaocustosapi.dto.CadastroReunioesRequest;
 import com.ccbgestaocustosapi.models.CadastroReuniaoATDM;
 import com.ccbgestaocustosapi.services.CadastroReuniaoService;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
@@ -42,7 +43,7 @@ public class CadastroReuniaoController {
 
 
     @PostMapping
-    public ResponseEntity<PaginatedResponse<CadastroReuniaoATDM>> createNewCadastroReuniao(@RequestBody CadastroReuniaoATDM cadastroReuniaoATDM) {
+    public ResponseEntity<PaginatedResponse<CadastroReuniaoATDM>> createNewCadastroReuniao(@RequestBody CadastroReunioesRequest cadastroReuniaoATDM) {
         try {
             this.cadastroReuniaoService.createNewCadastroReuniao(cadastroReuniaoATDM);
             return ResponseEntity.ok(new PaginatedResponse<>

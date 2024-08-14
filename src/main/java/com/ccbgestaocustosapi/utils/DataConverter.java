@@ -19,4 +19,12 @@ public class DataConverter {
         LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         return date.atTime(23, 59, 59);
     }
+
+
+
+    public static LocalDateTime convertStringToDate(String dateString) {
+        return LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
+
+
 }
