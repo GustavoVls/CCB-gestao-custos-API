@@ -1,5 +1,6 @@
 package com.ccbgestaocustosapi.controllers;
 
+import com.ccbgestaocustosapi.dto.CadastroParticipantesATDMResponse;
 import com.ccbgestaocustosapi.dto.ParticipantesAtdmRequest;
 import com.ccbgestaocustosapi.models.CadastroParticipantesATDM;
 import com.ccbgestaocustosapi.services.CadastroParticipantesService;
@@ -17,23 +18,20 @@ public class CadastroParticipantesController {
     private final CadastroParticipantesService cadastroParticipantesService;
 
     @GetMapping
-    public ResponseEntity<PaginatedResponse<CadastroParticipantesATDM>> findParticipantesAtdm(@RequestParam Integer page,
-                                                                                              @RequestParam Integer size,
-                                                                                              @RequestParam(required = false) Integer id,
-                                                                                              @RequestParam (required = false) String valueOrderBY,
-                                                                                              @RequestParam(required = false) boolean isOrderByAsc ) {
-        try {
-            // caso não tenha nenhum filtro, ele realizar um getAll
-            if (id == null) {
-                int pageValue = page - 1;
-                PaginatedResponse<CadastroParticipantesATDM> response = this.cadastroParticipantesService.getAllParticipantes(pageValue, size, valueOrderBY, isOrderByAsc);
-                return ResponseEntity.ok(response);
-            }
-            PaginatedResponse<CadastroParticipantesATDM> response = this.cadastroParticipantesService.getByIdParticipantes(id);
+    public ResponseEntity<PaginatedResponse<?>> findParticipantesAtdm(@RequestParam Integer page,
+                                                                      @RequestParam Integer size,
+                                                                      @RequestParam(required = false) String nomeParticipante,
+                                                                      @RequestParam(required = false) String valueOrderBY,
+                                                                      @RequestParam(required = false) boolean isOrderByAsc) {
+        // caso não tenha nenhum filtro, ele realizar um getAll
+        if (nomeParticipante == null) {
+            int pageValue = page - 1;
+            PaginatedResponse<CadastroParticipantesATDM> response = this.cadastroParticipantesService.getAllParticipantes(pageValue, size, valueOrderBY, isOrderByAsc);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return CentralExceptionHandler.handleException(e, "Erro na busca de dados de setores.");
         }
+        PaginatedResponse<CadastroParticipantesATDMResponse> response = this.cadastroParticipantesService.getByNomeParticipantes(nomeParticipante, valueOrderBY, isOrderByAsc);
+        return ResponseEntity.ok(response);
+
     }
 
     @PostMapping
@@ -69,4 +67,14 @@ public class CadastroParticipantesController {
         }
     }
 
+
+    @GetMapping(path = "dropdown-comum")
+    public ResponseEntity<?> dropdownComum() {
+        return ResponseEntity.ok(this.cadastroParticipantesService.getDropdownComum());
+    }
+
+    @GetMapping(path = "dropdown-reuniao")
+    public ResponseEntity<?> dropdownReuniao() {
+            return ResponseEntity.ok(this.cadastroParticipantesService.getDropdownReuniao());
+    }
 }

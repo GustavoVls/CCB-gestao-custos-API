@@ -1,6 +1,9 @@
 package com.ccbgestaocustosapi.services;
 
+import com.ccbgestaocustosapi.dto.CadastroParticipantesATDMResponse;
 import com.ccbgestaocustosapi.dto.ParticipantesAtdmRequest;
+import com.ccbgestaocustosapi.dto.dropdowns.ComumDropdownResponse;
+import com.ccbgestaocustosapi.dto.dropdowns.ReuniaoDropdownResponse;
 import com.ccbgestaocustosapi.models.CadastroParticipantesATDM;
 import com.ccbgestaocustosapi.models.CadastroReuniaoATDM;
 import com.ccbgestaocustosapi.repository.CadastroParticipantesRepository;
@@ -14,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,8 +29,8 @@ public class CadastroParticipantesService {
 
     public PaginatedResponse<CadastroParticipantesATDM> getAllParticipantes(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
 
-        if (valueOrderBY != null){
-            Page<CadastroParticipantesATDM> setoresPage = this.cadastroParticipantesRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ?  Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+        if (valueOrderBY != null) {
+            Page<CadastroParticipantesATDM> setoresPage = this.cadastroParticipantesRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ? Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
             return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
         }
 
@@ -34,9 +39,34 @@ public class CadastroParticipantesService {
 
     }
 
-    public PaginatedResponse<CadastroParticipantesATDM> getByIdParticipantes(Integer id) {
-        Optional<CadastroParticipantesATDM> resultId = this.cadastroParticipantesRepository.findById(id);
-        return new PaginatedResponse<>(resultId.stream().toList(), 0);
+    public PaginatedResponse<CadastroParticipantesATDMResponse> getByNomeParticipantes(String nomeParticipantes, String valueOrderBY, boolean isOrderByAsc) {
+
+        List<Object[]> resultId;
+
+        if (valueOrderBY == null) {
+            resultId = this.cadastroParticipantesRepository.findByNomeParticipantes(nomeParticipantes);
+        } else {
+            resultId = this.cadastroParticipantesRepository.findByNomeParticipantesOrderBy(nomeParticipantes, valueOrderBY, isOrderByAsc ? "asc" : "desc");
+        }
+
+        List<CadastroParticipantesATDMResponse> cadastroParticipantesDTOs = new ArrayList<>();
+
+        for (Object[] resultado : resultId) {
+            Integer totalRecords = ((Number) resultado[0]).intValue();
+            Integer idParticipantes = ((Number) resultado[1]).intValue();
+            String nomeParticipante = ((String) resultado[2]);
+            String cargoParticipante = ((String) resultado[3]);
+            String comumParticipante = (String) resultado[4];
+            String reuniaoDescricao = (String) resultado[5];
+            Integer reuniaoId = ((Number) resultado[6]).intValue();
+
+
+            CadastroParticipantesATDMResponse dto = new CadastroParticipantesATDMResponse(totalRecords, idParticipantes, nomeParticipante, cargoParticipante,
+                    comumParticipante, reuniaoDescricao, reuniaoId);
+            cadastroParticipantesDTOs.add(dto);
+        }
+
+        return new PaginatedResponse<>(cadastroParticipantesDTOs.stream().toList(), cadastroParticipantesDTOs.isEmpty() ? 0 : cadastroParticipantesDTOs.get(0).getTotalRecords());
     }
 
     @Transactional
@@ -73,10 +103,6 @@ public class CadastroParticipantesService {
                 updated = true;
             }
 
-            if (cadastroParticipantesATDM.getComumParticipante() != null) {
-                existingParticipantes.setComumParticipante(cadastroParticipantesATDM.getNomeParticipante());
-                updated = true;
-            }
 
             if (updated) {
                 this.cadastroParticipantesRepository.save(existingParticipantes);
@@ -98,5 +124,38 @@ public class CadastroParticipantesService {
         } else {
             throw new BadCredentialException("Id do participante não encontrado para realizar a remoção");
         }
+    }
+
+    public List<ComumDropdownResponse> getDropdownComum() {
+
+        List<Object[]> dropdownAdmList = this.cadastroParticipantesRepository.findAllDropdownComum();
+
+        List<ComumDropdownResponse> comumDropdownDto = new ArrayList<>();
+
+        for (Object[] resultado : dropdownAdmList) {
+            String igrNome = ((String) resultado[0]);
+            ComumDropdownResponse dto = new ComumDropdownResponse(igrNome);
+            comumDropdownDto.add(dto);
+        }
+
+        return comumDropdownDto;
+    }
+
+    public List<ReuniaoDropdownResponse> getDropdownReuniao() {
+
+            List<Object[]> dropdownAdmList = this.cadastroParticipantesRepository.findAllDropdownReuniao();
+
+            List<ReuniaoDropdownResponse> reuniaoDropdownDto = new ArrayList<>();
+
+            for (Object[] resultado : dropdownAdmList) {
+                Integer reuniaoId = ((Number) resultado[0]).intValue();
+                String reuniaoDescricao = ((String) resultado[1]);
+                ReuniaoDropdownResponse dto = new ReuniaoDropdownResponse(reuniaoId, reuniaoDescricao);
+                reuniaoDropdownDto.add(dto);
+            }
+
+            return reuniaoDropdownDto;
+
+
     }
 }
