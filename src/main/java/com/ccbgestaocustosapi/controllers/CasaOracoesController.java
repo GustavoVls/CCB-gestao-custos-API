@@ -1,6 +1,7 @@
 package com.ccbgestaocustosapi.controllers;
 
 
+import com.ccbgestaocustosapi.dto.CasaOracoesFiltroResponse;
 import com.ccbgestaocustosapi.dto.CasaOracoesRequest;
 import com.ccbgestaocustosapi.models.Administracao;
 import com.ccbgestaocustosapi.models.CasaOracoes;
@@ -20,25 +21,26 @@ public class CasaOracoesController {
 
 
     @GetMapping
-    public ResponseEntity<PaginatedResponse<CasaOracoes>> findSetores(@RequestParam Integer page,
+    public ResponseEntity<PaginatedResponse<?>> findSetores(@RequestParam Integer page,
                                                                       @RequestParam Integer size,
-                                                                      @RequestParam(required = false) Integer id,
+                                                                      @RequestParam(required = false) String nomeIgreja,
                                                                       @RequestParam (required = false) String valueOrderBY,
                                                                       @RequestParam(required = false) boolean isOrderByAsc ) {
-        try {
             // caso não tenha nenhum filtro, ele realizar um getAll
-            if (id == null) {
+            if (nomeIgreja == null) {
                 int pageValue = page - 1;
                 PaginatedResponse<CasaOracoes> response = this.casaOracoesService.getAllCasaOracoes(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
-            PaginatedResponse<CasaOracoes> response = this.casaOracoesService.getByIdCasaOracoes(id);
+            PaginatedResponse<CasaOracoesFiltroResponse> response = this.casaOracoesService.getByCasaOracoes(nomeIgreja, valueOrderBY, isOrderByAsc);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return CentralExceptionHandler.handleException(e, "Erro na busca de dados da Casa de orações.");
-        }
+
     }
 
+    @GetMapping(path = "dropdown-setor")
+    public ResponseEntity<?> dropdownSetor() {
+        return ResponseEntity.ok(this.casaOracoesService.getDropDownSetor());
+    }
     @PostMapping
     public ResponseEntity<PaginatedResponse<CasaOracoes>> createNewCasaOracoes(@RequestBody CasaOracoesRequest casaOracoesRequest) {
         try {

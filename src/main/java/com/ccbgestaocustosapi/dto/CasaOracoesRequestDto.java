@@ -3,16 +3,16 @@ package com.ccbgestaocustosapi.dto;
 import lombok.Data;
 
 @Data
-public class CasaOracoesRequest {
+public class CasaOracoesRequestDto {
     private Integer igrId;
     private  Integer setorId;
     private  Integer admId;
-    private  String igrCod;
+    private  Character igrCod;
     private String igrNome;
     private String igrEndereco;
-    private String igrCep;
+    private Character igrCep;
     private String igrCidade;
-    private String igrEstado;
+    private Character igrEstado;
     private String igrComplemento;
     private String igrBairro;
 }

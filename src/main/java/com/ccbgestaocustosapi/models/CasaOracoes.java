@@ -31,7 +31,7 @@ public class CasaOracoes {
     private Administracao adm;
 
     @Column(name = "igr_cod", nullable = false, length = 10)
-    private Character igrCod;
+    private String igrCod;
 
     @Column(name = "igr_nome", nullable = false, length = 100)
     private String igrNome;
@@ -42,13 +42,13 @@ public class CasaOracoes {
     private String igrBairro;
 
     @Column(name = "igr_cep", nullable = false, length = 10)
-    private Character igrCep;
+    private String igrCep;
 
     @Column(name = "igr_cidade", nullable = false, length = 100)
     private String igrCidade;
 
     @Column(name = "igr_estado", nullable = false, length = 2)
-    private Character igrEstado;
+    private String igrEstado;
 
     @Column(name = "igr_complemento", nullable = false, length = 100)
     private String igrComplemento;
