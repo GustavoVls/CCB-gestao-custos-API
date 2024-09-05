@@ -1,6 +1,7 @@
 package com.ccbgestaocustosapi.token;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -41,4 +42,12 @@ public interface TokenRepository extends JpaRepository<Token, Integer> {
     @Query(value = "\n" +
             "select t.id  from ccb.token t where t.expired = true", nativeQuery = true)
     List<Object[]> findIdTokenExpired();
+
+
+
+    @Modifying
+    @Query(value = "delete from ccb.token s where s.id_usuario = :idUsuario"
+
+            ,nativeQuery = true)
+    void deleteByIdUsuario(@Param("idUsuario") Integer idUsuario);
 }

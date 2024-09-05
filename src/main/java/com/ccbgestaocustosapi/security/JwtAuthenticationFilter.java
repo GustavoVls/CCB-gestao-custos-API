@@ -80,7 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
 
                 // Verifica as roles do usuário
-                if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN"))) {
+                if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN") || a.getAuthority().equals("USER"))) {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
