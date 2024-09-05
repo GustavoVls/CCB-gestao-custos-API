@@ -1,5 +1,6 @@
 package com.ccbgestaocustosapi.services;
 
+import com.ccbgestaocustosapi.dto.AdministracaoFiltroResponse;
 import com.ccbgestaocustosapi.models.Administracao;
 import com.ccbgestaocustosapi.repository.AdministracaoRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
@@ -14,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,9 +34,28 @@ public class AdministracaoService {
         return new PaginatedResponse<>(administracaoPage.getContent(), administracaoPage.getTotalElements());
     }
 
-    public PaginatedResponse<Administracao> getbyIdAdministracao(Integer id) {
-        Optional<Administracao> resultId = this.administracaoRepository.findById(id);
-        return new PaginatedResponse<>(resultId.stream().toList(), 0);
+    public PaginatedResponse<AdministracaoFiltroResponse> getbyNomeAdministracao(String nomeAdm) {
+        List<Object[]> resultId;
+
+
+        resultId = this.administracaoRepository.findByNomeAdm(nomeAdm);
+
+
+        List<AdministracaoFiltroResponse> admDTOS = new ArrayList<>();
+
+
+
+        for (Object[] resultado : resultId) {
+            Integer totalRecords = ((Number) resultado[0]).intValue();
+            Integer admId = ((Number) resultado[1]).intValue();
+            String admNome = ((String) resultado[2]);
+            String admCidade = ((String) resultado[3]);
+            String admEstado = (String) resultado[4];
+            AdministracaoFiltroResponse dto = new AdministracaoFiltroResponse(admId, admNome, admCidade, admEstado, totalRecords);
+            admDTOS.add(dto);
+        }
+
+        return new PaginatedResponse<>(admDTOS.stream().toList(), 0);
     }
 
     @Transactional

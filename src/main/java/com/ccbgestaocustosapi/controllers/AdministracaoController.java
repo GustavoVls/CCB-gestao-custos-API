@@ -1,5 +1,6 @@
 package com.ccbgestaocustosapi.controllers;
 
+import com.ccbgestaocustosapi.dto.AdministracaoFiltroResponse;
 import com.ccbgestaocustosapi.models.Administracao;
 import com.ccbgestaocustosapi.services.AdministracaoService;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
@@ -14,25 +15,23 @@ import org.springframework.web.bind.annotation.*;
 public class AdministracaoController {
     private final AdministracaoService administracaoService;
 
-    // TODO: 04/06/2024 realizar um requestParam no get de acordo com a escolha de filtragem
+    // TODO: 28/08/2024 Validar todos os selects de acordo com o usuario logado, exibir somnete a administração que ele está logado , porém na tela de ADM será exibido
+    //  todos as novas administrações
     @GetMapping
-    public ResponseEntity<PaginatedResponse<Administracao>> findAdministracao(@RequestParam Integer page,
+    public ResponseEntity<PaginatedResponse<?>> findAdministracao(@RequestParam Integer page,
                                                                               @RequestParam Integer size,
-                                                                              @RequestParam(required = false) Integer id,
+                                                                              @RequestParam(required = false) String nomeAdm,
                                                                               @RequestParam(required = false) String valueOrderBY,
                                                                               @RequestParam(required = false) boolean isOrderByAsc) {
-        try {
             // caso não tenha nenhum filtro, ele realizar um getAll
-            if (id == null) {
+            if (nomeAdm == null) {
                 int pageValue = page - 1;
                 PaginatedResponse<Administracao> response = this.administracaoService.getAllAdministracao(pageValue, size, valueOrderBY, isOrderByAsc);
                 return ResponseEntity.ok(response);
             }
-            PaginatedResponse<Administracao> response = this.administracaoService.getbyIdAdministracao(id);
+            PaginatedResponse<AdministracaoFiltroResponse> response = this.administracaoService.getbyNomeAdministracao(nomeAdm);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return CentralExceptionHandler.handleException(e, "Erro na busca de dados da administração.");
-        }
+
     }
 
     @PostMapping

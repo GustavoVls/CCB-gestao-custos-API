@@ -38,6 +38,7 @@ public class SetoresService {
         return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
     }
 
+    // TODO: 23/08/2024 Verificar se o findByNomeSetorOrderBy está sendo utilizado 
     public PaginatedResponse<SetoresFiltroResponse> getByNomeSetores(String nomeSetor,  String valueOrderBY, boolean isOrderByAsc) {
         List<Object[]> resultId;
 

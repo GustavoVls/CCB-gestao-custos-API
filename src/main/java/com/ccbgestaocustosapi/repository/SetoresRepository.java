@@ -49,4 +49,29 @@ public interface SetoresRepository extends JpaRepository<Setores, Integer> {
             , nativeQuery = true)
     List<Object[]> findByNomeSetorOrderBy(@Param("nomeSetor") String nomeSetor,  @Param("orderBy") String orderBY, @Param("ascDescValue") String asdDescValue);
 
+
+    @Query(value =
+            """
+                                 	
+                    select s.setor_id,
+                                    s.setor_nome, s.adm_id\s
+                          from ccb.setores s where s.adm_id  = :admId
+                                                                       
+                    """, nativeQuery = true)
+    List<Object[]> findAllDropdownSetorByAdm(@Param("admId") Integer admId);
+
+    @Query(value =
+            """
+                                                           select
+                                                                                        co.igr_id,
+                                                                                                      co.igr_nome
+                                                                                                     FROM
+                                                                                             ccb.casa_oracoes co\s
+                                                                         where co.adm_id  = :admId and co.setor_id  = :setorId
+                                                                                         
+                    """, nativeQuery = true)
+    List<Object[]> findCasaDeOracaoByAdmSetorId(@Param("admId") Integer admId, @Param("setorId") Integer setorId);
+
+
+
 }

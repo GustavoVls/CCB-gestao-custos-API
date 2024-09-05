@@ -55,30 +55,30 @@ public class AuthenticationService {
     @Transactional
     public AuthenticationResponse register(RegisterRequest request) throws ResponseStatusException {
 
-        if (userRepository.existsByNome(request.getNome())) {
-            throw new BadCredentialException("Nome usuário já existente");
+        if (userRepository.existsByNome(request.getNomeUsuario())) {
+            throw new BadCredentialException("Nome de usuário já existente");
         }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadCredentialException("Email usuário já existente");
+        if (userRepository.existsByEmail(request.getEmailUsuario())) {
+            throw new BadCredentialException("Email de usuário já existente");
         }
 
-        Administracao adm = admRepository.findById(request.getIdAdm()).orElse(null);
+        Administracao adm = admRepository.findById(request.getAdmId()).orElse(null);
         Setores setor = new Setores();
         CasaOracoes casaOracoes = new CasaOracoes();
 
 
-        if (request.getIdSetor() != null) {
-            setor = setoresRepository.findById(request.getIdSetor()).orElse(null);
+        if (request.getSetorId() != null) {
+            setor = setoresRepository.findById(request.getSetorId()).orElse(null);
         }
 
-        if (request.getIdIgr() != null) {
-            casaOracoes = casaOracoesRepository.findById(request.getIdIgr()).orElse(null);
+        if (request.getIgrId() != null) {
+            casaOracoes = casaOracoesRepository.findById(request.getIgrId()).orElse(null);
         }
 
         Usuarios userDTO = new Usuarios();
-        userDTO.setNome(request.getNome());
-        userDTO.setEmail(request.getEmail());
+        userDTO.setNome(request.getNomeUsuario());
+        userDTO.setEmail(request.getEmailUsuario());
         userDTO.setSenha(passwordEncoder.encode(request.getSenha()));
         userDTO.setAdm(adm);
 
@@ -96,12 +96,12 @@ public class AuthenticationService {
             userDTO.setRole(Role.USER);
         }
 
-        if (request.getIdSetor() != null) {
+        if (request.getSetorId() != null) {
             userDTO.setSetor(setor);
         } else {
             userDTO.setSetor(null);
         }
-        if (request.getIdIgr() != null) {
+        if (request.getIgrId() != null) {
             userDTO.setIgr(casaOracoes);
         } else {
             userDTO.setIgr(null);
@@ -251,7 +251,7 @@ public class AuthenticationService {
         }
     }
 
-    public boolean validaUsuario(String email, String senha){
+    public boolean validaUsuario(String email, String senha) {
         String senhaResult = this.methodsUtils.decryptFromBase64(senha);
         try {
             authenticationManager.authenticate(
@@ -264,7 +264,7 @@ public class AuthenticationService {
             userRepository.findByEmail(email)
                     .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
-            return  true;
+            return true;
         } catch (BadCredentialsException e) {
             throw new BadCredentialException("Email ou Senha inválida.");
         }

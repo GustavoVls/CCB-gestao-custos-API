@@ -8,5 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ComumDropdownResponse {
+
+    private  Integer igrId;
     private String nomeComum;
 }

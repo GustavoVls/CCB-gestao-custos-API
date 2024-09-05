@@ -31,7 +31,7 @@ public interface CasaOracoesRepository extends JpaRepository<CasaOracoes, Intege
                             co.igr_endereco,
                             co.igr_complemento,
                             a.adm_id,
-                            s.setor_id,
+                            s.setor_id
                             from
                             ccb.casa_oracoes co
                             inner join ccb.administracao a on
@@ -64,7 +64,7 @@ public interface CasaOracoesRepository extends JpaRepository<CasaOracoes, Intege
                                  co.igr_endereco,
                                  co.igr_complemento,
                                  a.adm_id,
-                                 s.setor_id,
+                                 s.setor_id
                                  from
                                  ccb.casa_oracoes co
                                  inner join ccb.administracao a on

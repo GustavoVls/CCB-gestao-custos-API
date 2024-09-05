@@ -134,7 +134,7 @@ public class CadastroParticipantesService {
 
         for (Object[] resultado : dropdownAdmList) {
             String igrNome = ((String) resultado[0]);
-            ComumDropdownResponse dto = new ComumDropdownResponse(igrNome);
+            ComumDropdownResponse dto = new ComumDropdownResponse(null,igrNome);
             comumDropdownDto.add(dto);
         }
 

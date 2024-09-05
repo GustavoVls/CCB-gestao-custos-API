@@ -80,7 +80,7 @@ values (14, 1, 12);
 	2, 1, 1, 'Usuários', 'bi bi-person-plus-fill', '/usuarios'  );
 
     insert into ccb.menu_acesso (id_menu, id_menu_pai, id_acesso, nome_menu, icon_class, path_route) values (
-	3, 1, 2, 'Administração', 'bi bi-diagram-2-fill', '/administração');
+	3, 1, 2, 'Administração', 'bi bi-diagram-2-fill', '/administracao');
 
 	insert into ccb.menu_acesso (id_menu, id_menu_pai, id_acesso, nome_menu, icon_class, path_route) values (
 	4, 1, 3, 'Setores', 'bi bi-bar-chart-steps', '/setores');
