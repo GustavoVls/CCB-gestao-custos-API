@@ -7,6 +7,7 @@ import com.ccbgestaocustosapi.services.CadastroReuniaoService;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
 import com.ccbgestaocustosapi.utils.exceptions.CentralExceptionHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,23 +24,29 @@ public class CadastroReuniaoController {
                                                                                           @RequestParam(required = false) String descricao,
                                                                                           @RequestParam(required = false) String dataInicial,
                                                                                           @RequestParam(required = false) String dataFinal,
-                                                                                          @RequestParam (required = false) String valueOrderBY,
-                                                                                          @RequestParam(required = false) boolean isOrderByAsc ) {
+                                                                                          @RequestParam(required = false) String valueOrderBY,
+                                                                                          @RequestParam(required = false) boolean isOrderByAsc,
+                                                                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try {
-            // caso não tenha nenhum filtro, ele realizar um getAll
-            if (descricao == null && dataInicial == null && dataFinal == null) {
-                int pageValue = page - 1;
-                PaginatedResponse<CadastroReuniaoATDM> response = this.cadastroReuniaoService.getAllReunioesCadastradas(pageValue, size, valueOrderBY, isOrderByAsc);
-                return ResponseEntity.ok(response);
+
+            PaginatedResponse<CadastroReuniaoATDM> response = null;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7); // Pega o token após 'Bearer '
+                // caso não tenha nenhum filtro, ele realizar um getAll
+                if (descricao == null && dataInicial == null && dataFinal == null) {
+                    response = this.cadastroReuniaoService.getAllReunioesCadastradas(
+                            page, size, valueOrderBY,
+                            isOrderByAsc ? "asc" : "desc", token);
+                    return ResponseEntity.ok(response);
+                }
+                response = this.cadastroReuniaoService.getbyIdReunioesCadastradas(descricao, dataInicial, dataFinal, valueOrderBY, isOrderByAsc,
+                        isOrderByAsc ? "asc" : "desc", token);
             }
-            PaginatedResponse<CadastroReuniaoATDM> response = this.cadastroReuniaoService.getbyIdReunioesCadastradas(descricao, dataInicial, dataFinal, valueOrderBY, isOrderByAsc,
-                    isOrderByAsc ? "asc" : "desc");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return CentralExceptionHandler.handleException(e, "Erro na busca de dados da Reuniões cadastradas.");
         }
     }
-
 
 
     @PostMapping

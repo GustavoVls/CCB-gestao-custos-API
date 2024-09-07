@@ -8,13 +8,12 @@ import com.ccbgestaocustosapi.models.CadastroParticipantesATDM;
 import com.ccbgestaocustosapi.models.CadastroReuniaoATDM;
 import com.ccbgestaocustosapi.repository.CadastroParticipantesRepository;
 import com.ccbgestaocustosapi.repository.CadastroReuniaoRepository;
+import com.ccbgestaocustosapi.repository.UsersRepository;
+import com.ccbgestaocustosapi.token.TokenRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
 import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,24 +26,57 @@ public class CadastroParticipantesService {
     private final CadastroParticipantesRepository cadastroParticipantesRepository;
     private final CadastroReuniaoRepository cadastroReuniaoRepository;
 
-    public PaginatedResponse<CadastroParticipantesATDM> getAllParticipantes(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+    private final TokenRepository tokenRepository;
 
-        if (valueOrderBY != null) {
-            Page<CadastroParticipantesATDM> setoresPage = this.cadastroParticipantesRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ? Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
-            return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
+    private final UsersRepository usersRepository;
+
+    public PaginatedResponse<CadastroParticipantesATDMResponse> getAllParticipantes(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc, String token) {
+
+        List<Object[]> resultId = null;
+
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
+
+
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
+
+        if (valueOrderBY == null) {
+            resultId = this.cadastroParticipantesRepository.findByAdmId(idAdm);
         }
 
-        Page<CadastroParticipantesATDM> setoresPage = this.cadastroParticipantesRepository.findAll(PageRequest.of(pageValue, size));
-        return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
+        List<CadastroParticipantesATDMResponse> cadastroParticipantesDTOs = new ArrayList<>();
+
+        assert resultId != null;
+        for (Object[] resultado : resultId) {
+            Integer totalRecords = ((Number) resultado[0]).intValue();
+            Integer idParticipantes = ((Number) resultado[1]).intValue();
+            String nomeParticipante = ((String) resultado[2]);
+            String cargoParticipante = ((String) resultado[3]);
+            String comumParticipante = (String) resultado[4];
+            String reuniaoDescricao = (String) resultado[5];
+            Integer reuniaoId = ((Number) resultado[6]).intValue();
+
+
+            CadastroParticipantesATDMResponse dto = new CadastroParticipantesATDMResponse(totalRecords, idParticipantes, nomeParticipante, cargoParticipante,
+                    comumParticipante, reuniaoDescricao, reuniaoId);
+            cadastroParticipantesDTOs.add(dto);
+        }
+
+        return new PaginatedResponse<>(cadastroParticipantesDTOs.stream().toList(), cadastroParticipantesDTOs.isEmpty() ? 0 : cadastroParticipantesDTOs.get(0).getTotalRecords());
 
     }
 
-    public PaginatedResponse<CadastroParticipantesATDMResponse> getByNomeParticipantes(String nomeParticipantes, String valueOrderBY, boolean isOrderByAsc) {
+    public PaginatedResponse<CadastroParticipantesATDMResponse> getByNomeParticipantes(String nomeParticipantes, String valueOrderBY, boolean isOrderByAsc,
+                                                                                       String token) {
 
         List<Object[]> resultId;
 
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
+
+
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
+
         if (valueOrderBY == null) {
-            resultId = this.cadastroParticipantesRepository.findByNomeParticipantes(nomeParticipantes);
+            resultId = this.cadastroParticipantesRepository.findByNomeParticipantes(nomeParticipantes, idAdm);
         } else {
             resultId = this.cadastroParticipantesRepository.findByNomeParticipantesOrderBy(nomeParticipantes, valueOrderBY, isOrderByAsc ? "asc" : "desc");
         }
@@ -126,35 +158,45 @@ public class CadastroParticipantesService {
         }
     }
 
-    public List<ComumDropdownResponse> getDropdownComum() {
+    public List<ComumDropdownResponse> getDropdownComum(String token) {
 
-        List<Object[]> dropdownAdmList = this.cadastroParticipantesRepository.findAllDropdownComum();
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
+
+
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
+
+        List<Object[]> dropdownAdmList = this.cadastroParticipantesRepository.findAllDropdownComum(idAdm);
 
         List<ComumDropdownResponse> comumDropdownDto = new ArrayList<>();
 
         for (Object[] resultado : dropdownAdmList) {
             String igrNome = ((String) resultado[0]);
-            ComumDropdownResponse dto = new ComumDropdownResponse(null,igrNome);
+            ComumDropdownResponse dto = new ComumDropdownResponse(null, igrNome);
             comumDropdownDto.add(dto);
         }
 
         return comumDropdownDto;
     }
 
-    public List<ReuniaoDropdownResponse> getDropdownReuniao() {
+    public List<ReuniaoDropdownResponse> getDropdownReuniao(String token) {
 
-            List<Object[]> dropdownAdmList = this.cadastroParticipantesRepository.findAllDropdownReuniao();
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
 
-            List<ReuniaoDropdownResponse> reuniaoDropdownDto = new ArrayList<>();
 
-            for (Object[] resultado : dropdownAdmList) {
-                Integer reuniaoId = ((Number) resultado[0]).intValue();
-                String reuniaoDescricao = ((String) resultado[1]);
-                ReuniaoDropdownResponse dto = new ReuniaoDropdownResponse(reuniaoId, reuniaoDescricao);
-                reuniaoDropdownDto.add(dto);
-            }
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
 
-            return reuniaoDropdownDto;
+        List<Object[]> dropdownAdmList = this.cadastroParticipantesRepository.findAllDropdownReuniao(idAdm);
+
+        List<ReuniaoDropdownResponse> reuniaoDropdownDto = new ArrayList<>();
+
+        for (Object[] resultado : dropdownAdmList) {
+            Integer reuniaoId = ((Number) resultado[0]).intValue();
+            String reuniaoDescricao = ((String) resultado[1]);
+            ReuniaoDropdownResponse dto = new ReuniaoDropdownResponse(reuniaoId, reuniaoDescricao);
+            reuniaoDropdownDto.add(dto);
+        }
+
+        return reuniaoDropdownDto;
 
 
     }

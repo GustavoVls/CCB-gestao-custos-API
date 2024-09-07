@@ -7,13 +7,12 @@ import com.ccbgestaocustosapi.models.Administracao;
 import com.ccbgestaocustosapi.models.Setores;
 import com.ccbgestaocustosapi.repository.AdministracaoRepository;
 import com.ccbgestaocustosapi.repository.SetoresRepository;
+import com.ccbgestaocustosapi.repository.UsersRepository;
+import com.ccbgestaocustosapi.token.TokenRepository;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
 import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,29 +26,58 @@ public class SetoresService {
 
     private final AdministracaoRepository administracaoRepository;
 
-    public PaginatedResponse<Setores> getAllSetores(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+    private final TokenRepository tokenRepository;
 
-        if (valueOrderBY != null) {
-            Page<Setores> setoresPage = this.setoresRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ? Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
-            return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
-        }
+    private final UsersRepository usersRepository;
 
-        Page<Setores> setoresPage = this.setoresRepository.findAll(PageRequest.of(pageValue, size, Sort.by(Sort.Direction.ASC, "setorId" )));
-        return new PaginatedResponse<>(setoresPage.getContent(), setoresPage.getTotalElements());
-    }
+    public PaginatedResponse<SetoresFiltroResponse> getAllSetores(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc,
+                                                                  String token) {
+        List<Object[]> resultId = null;
 
-    // TODO: 23/08/2024 Verificar se o findByNomeSetorOrderBy está sendo utilizado 
-    public PaginatedResponse<SetoresFiltroResponse> getByNomeSetores(String nomeSetor,  String valueOrderBY, boolean isOrderByAsc) {
-        List<Object[]> resultId;
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
 
-        if (valueOrderBY == null){
-            resultId = this.setoresRepository.findByNomeSetor(nomeSetor);
-        }else {
-            resultId = this.setoresRepository.findByNomeSetorOrderBy(nomeSetor, valueOrderBY, isOrderByAsc ? "asc" : "desc");
+
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
+
+        if (valueOrderBY == null) {
+            resultId = this.setoresRepository.findByAdmId(idAdm);
         }
 
         List<SetoresFiltroResponse> setoresDTOs = new ArrayList<>();
 
+
+        assert resultId != null;
+        for (Object[] resultado : resultId) {
+            Integer totalRecords = ((Number) resultado[0]).intValue();
+            Integer setorId = ((Number) resultado[1]).intValue();
+            Integer admId = ((Number) resultado[2]).intValue();
+            String setorNome = ((String) resultado[3]);
+            String admNome = (String) resultado[4];
+
+            SetoresFiltroResponse dto = new SetoresFiltroResponse(setorId, admId, setorNome, admNome, totalRecords);
+            setoresDTOs.add(dto);
+        }
+        return new PaginatedResponse<>(setoresDTOs.stream().toList(), setoresDTOs.isEmpty() ? 0 : setoresDTOs.get(0).getTotalRecords());
+
+    }
+
+    // TODO: 23/08/2024 Verificar se o findByNomeSetorOrderBy está sendo utilizado 
+    public PaginatedResponse<SetoresFiltroResponse> getByNomeSetores(String nomeSetor, String valueOrderBY, boolean isOrderByAsc,
+                                                                     String token) {
+        List<Object[]> resultId;
+
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
+
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
+
+
+        if (valueOrderBY == null) {
+            resultId = this.setoresRepository.findByNomeSetor(nomeSetor, idAdm);
+        } else {
+            resultId = this.setoresRepository.findByNomeSetorOrderBy(nomeSetor, valueOrderBY, isOrderByAsc ? "asc" : "desc");
+        }
+
+        List<SetoresFiltroResponse> setoresDTOs = new ArrayList<>();
 
 
         for (Object[] resultado : resultId) {

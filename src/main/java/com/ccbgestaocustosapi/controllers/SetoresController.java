@@ -8,6 +8,7 @@ import com.ccbgestaocustosapi.services.SetoresService;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
 import com.ccbgestaocustosapi.utils.exceptions.CentralExceptionHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,14 +24,19 @@ public class SetoresController {
                                                             @RequestParam Integer size,
                                                             @RequestParam(required = false) String nomeSetor,
                                                             @RequestParam(required = false) String valueOrderBY,
-                                                            @RequestParam(required = false) boolean isOrderByAsc) {
-        // caso não tenha nenhum filtro, ele realizar um getAll
+                                                            @RequestParam(required = false) boolean isOrderByAsc,
+                                                            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+
+        PaginatedResponse<SetoresFiltroResponse> response;
+        String token = authorizationHeader.substring(7); // Pega o token após 'Bearer '
+
         if (nomeSetor == null) {
+
             int pageValue = page - 1;
-            PaginatedResponse<Setores> response = this.setoresService.getAllSetores(pageValue, size, valueOrderBY, isOrderByAsc);
+            response = this.setoresService.getAllSetores(pageValue, size, valueOrderBY, isOrderByAsc, token);
             return ResponseEntity.ok(response);
         }
-        PaginatedResponse<SetoresFiltroResponse> response = this.setoresService.getByNomeSetores(nomeSetor, valueOrderBY, isOrderByAsc);
+        response = this.setoresService.getByNomeSetores(nomeSetor, valueOrderBY, isOrderByAsc, token);
         return ResponseEntity.ok(response);
 
     }

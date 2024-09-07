@@ -9,6 +9,7 @@ import com.ccbgestaocustosapi.services.CasaOracoesService;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
 import com.ccbgestaocustosapi.utils.exceptions.CentralExceptionHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,18 +23,20 @@ public class CasaOracoesController {
 
     @GetMapping
     public ResponseEntity<PaginatedResponse<?>> findSetores(@RequestParam Integer page,
-                                                                      @RequestParam Integer size,
-                                                                      @RequestParam(required = false) String nomeIgreja,
-                                                                      @RequestParam (required = false) String valueOrderBY,
-                                                                      @RequestParam(required = false) boolean isOrderByAsc ) {
-            // caso não tenha nenhum filtro, ele realizar um getAll
-            if (nomeIgreja == null) {
-                int pageValue = page - 1;
-                PaginatedResponse<CasaOracoes> response = this.casaOracoesService.getAllCasaOracoes(pageValue, size, valueOrderBY, isOrderByAsc);
-                return ResponseEntity.ok(response);
-            }
-            PaginatedResponse<CasaOracoesFiltroResponse> response = this.casaOracoesService.getByCasaOracoes(nomeIgreja, valueOrderBY, isOrderByAsc);
+                                                            @RequestParam Integer size,
+                                                            @RequestParam(required = false) String nomeIgreja,
+                                                            @RequestParam(required = false) String valueOrderBY,
+                                                            @RequestParam(required = false) boolean isOrderByAsc,
+                                                            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        String token = authorizationHeader.substring(7); // Pega o token após 'Bearer '
+        // caso não tenha nenhum filtro, ele realizar um getAll
+        if (nomeIgreja == null) {
+            PaginatedResponse<CasaOracoes> response = this.casaOracoesService.getAllCasaOracoes(page, size, valueOrderBY, isOrderByAsc, isOrderByAsc ? "asc" : "desc", token);
             return ResponseEntity.ok(response);
+        }
+        PaginatedResponse<CasaOracoesFiltroResponse> response = this.casaOracoesService.getByCasaOracoes(nomeIgreja, valueOrderBY, isOrderByAsc, token);
+        return ResponseEntity.ok(response);
+
 
     }
 
@@ -41,6 +44,7 @@ public class CasaOracoesController {
     public ResponseEntity<?> dropdownSetor() {
         return ResponseEntity.ok(this.casaOracoesService.getDropDownSetor());
     }
+
     @PostMapping
     public ResponseEntity<PaginatedResponse<CasaOracoes>> createNewCasaOracoes(@RequestBody CasaOracoesRequest casaOracoesRequest) {
         try {
@@ -66,7 +70,7 @@ public class CasaOracoesController {
 
 
     @DeleteMapping
-    public ResponseEntity<PaginatedResponse<Administracao>> deleteCasaOracao (@RequestParam Integer id) {
+    public ResponseEntity<PaginatedResponse<Administracao>> deleteCasaOracao(@RequestParam Integer id) {
         try {
             this.casaOracoesService.deleteCasaOracao(id);
             return ResponseEntity.ok(new PaginatedResponse<>
@@ -75,7 +79,6 @@ public class CasaOracoesController {
             return CentralExceptionHandler.handleException(e, e.getMessage());
         }
     }
-
 
 
 }

@@ -9,22 +9,25 @@ import com.ccbgestaocustosapi.models.Setores;
 import com.ccbgestaocustosapi.repository.AdministracaoRepository;
 import com.ccbgestaocustosapi.repository.CasaOracoesRepository;
 import com.ccbgestaocustosapi.repository.SetoresRepository;
+import com.ccbgestaocustosapi.repository.UsersRepository;
+import com.ccbgestaocustosapi.token.TokenRepository;
+import com.ccbgestaocustosapi.utils.DataConverter;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
 import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("unchecked")
+
 public class CasaOracoesService {
 
     private final CasaOracoesRepository casaOracoesRepository;
@@ -33,22 +36,103 @@ public class CasaOracoesService {
 
     private final SetoresRepository setoresRepository;
 
-    public PaginatedResponse<CasaOracoes> getAllCasaOracoes(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
 
+    @PersistenceContext
+    private EntityManager em;
+
+    private final DataConverter dataConverter;
+    private final TokenRepository tokenRepository;
+
+    private final UsersRepository usersRepository;
+
+
+
+    public PaginatedResponse<CasaOracoes> getAllCasaOracoes(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc, String ascDescValue, String token) {
+
+        StringBuilder queryBuilder = new StringBuilder("""
+                   select
+                                     COUNT(*) OVER() AS total_records,
+                                            co.igr_id,
+                                            co.igr_cod,
+                                            co.igr_nome,
+                                            a.adm_nome,
+                                            s.setor_nome,
+                                            co.igr_estado,
+                                            co.igr_cidade,
+                                            co.igr_bairro,
+                                            co.igr_cep,
+                                            co.igr_endereco,
+                                            co.igr_complemento,
+                                            a.adm_id,
+                                            s.setor_id
+                                            from
+                                            ccb.casa_oracoes co
+                                            inner join ccb.administracao a on
+                                            co.adm_id = a.adm_id
+                                            inner join ccb.setores s on
+                                            co.setor_id = s.setor_id
+                                            where
+                                            a.adm_id = :admId
+                """);
+
+        Map<String, Object> parameters = new HashMap<>();
+
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
+
+
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
+
+        parameters.put("admId", idAdm);
+
+        // Ordenação
         if (valueOrderBY != null) {
-            Page<CasaOracoes> casaOracoesPage = this.casaOracoesRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ? Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
-            return new PaginatedResponse<>(casaOracoesPage.getContent(), casaOracoesPage.getTotalElements());
+            queryBuilder.append(" order by ").append(valueOrderBY).append(" ").append(ascDescValue); // Evite passar parâmetros para "order by"
         }
 
-        Page<CasaOracoes> casaOracoesPage = this.casaOracoesRepository.findAll(PageRequest.of(pageValue, size));
-        return new PaginatedResponse<>(casaOracoesPage.getContent(), casaOracoesPage.getTotalElements());
+        // Adicionando paginação com LIMIT e OFFSET
+        int offset = (pageValue - 1) * size; // Calcula o offset
+        queryBuilder.append(" limit :size offset :offset");
+        parameters.put("size", size);
+        parameters.put("offset", offset);
+
+        Query query = em.createNativeQuery(queryBuilder.toString(), "CasaOracoesWithCount");
+
+        // Configuração de parâmetros
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
+        }
+
+        // Execução da consulta
+        List<Object[]> resultList = query.getResultList();
+        int totalRecords = 0;
+
+        List<CasaOracoes> cadastroList = new ArrayList<>();
+        for (Object[] result : resultList) {
+            CasaOracoes cadastro = (CasaOracoes) result[0];
+            totalRecords = ((Number) result[1]).intValue();
+            cadastroList.add(cadastro);
+        }
+
+        return new PaginatedResponse<>(cadastroList.stream().toList(), totalRecords);
+
+//        if (valueOrderBY != null) {
+//            Page<CasaOracoes> casaOracoesPage = this.casaOracoesRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ? Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
+//            return new PaginatedResponse<>(casaOracoesPage.getContent(), casaOracoesPage.getTotalElements());
+//        }
+//
+//        Page<CasaOracoes> casaOracoesPage = this.casaOracoesRepository.findAll(PageRequest.of(pageValue, size));
+//        return new PaginatedResponse<>(casaOracoesPage.getContent(), casaOracoesPage.getTotalElements());
     }
 
-    public PaginatedResponse<CasaOracoesFiltroResponse> getByCasaOracoes(String nomeIgreja, String valueOrderBY, boolean isOrderByAsc) {
+    public PaginatedResponse<CasaOracoesFiltroResponse> getByCasaOracoes(String nomeIgreja, String valueOrderBY, boolean isOrderByAsc, String token) {
+
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
+
         List<Object[]> resultId;
 
         if (valueOrderBY == null) {
-            resultId = this.casaOracoesRepository.findByNomeIgreja(nomeIgreja);
+            resultId = this.casaOracoesRepository.findByNomeIgreja(nomeIgreja, idAdm);
         } else {
             resultId = this.casaOracoesRepository.findByNomeIgrejaOrderBy(
                     nomeIgreja, valueOrderBY, isOrderByAsc ? "asc" : "desc");
@@ -137,7 +221,7 @@ public class CasaOracoesService {
                 updated = true;
             }
 
-            if (casaOracoesRequest.getIgrComplemento()!= null) {
+            if (casaOracoesRequest.getIgrComplemento() != null) {
                 casaOracoesExistente.setIgrComplemento(casaOracoesRequest.getIgrComplemento());
                 updated = true;
             }

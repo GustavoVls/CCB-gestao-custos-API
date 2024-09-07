@@ -46,11 +46,11 @@ public class CadastroReuniaoATDM {
     @Column(name = "reuniao_status", nullable = false, length = 1)
     private Character reuniaoStatus;
 
-    @Lob
     @Basic(fetch = FetchType.EAGER)
     @Column(name = "reuniao_ata", nullable = false, columnDefinition = "TEXT")
     private String reuniaoAta;
 
-
-
+    @ManyToOne
+    @JoinColumn(name = "adm_id")
+    private Administracao adm;
 }

@@ -15,6 +15,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@SqlResultSetMapping(
+        name = "CasaOracoesWithCount",
+        entities = @EntityResult(entityClass = CasaOracoes.class),
+        columns = @ColumnResult(name = "total_records")
+)
 public class CasaOracoes {
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator = "igr_id_seq")

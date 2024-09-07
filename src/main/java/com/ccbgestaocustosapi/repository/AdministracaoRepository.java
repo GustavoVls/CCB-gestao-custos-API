@@ -24,6 +24,16 @@ public interface AdministracaoRepository extends JpaRepository<Administracao, In
 
     @Query(value =
             """
+                                    select
+                                             a.adm_id , a.adm_nome
+                                                    FROM
+                                                    ccb.administracao a where a.adm_id = :admId
+                    """, nativeQuery = true)
+    List<Object[]> findAllDropdownAdmId(@Param("admId") Integer admId);
+
+
+    @Query(value =
+            """
                     \s
                     	
                  select

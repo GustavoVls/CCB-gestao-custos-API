@@ -7,6 +7,7 @@ import com.ccbgestaocustosapi.services.CadastroParticipantesService;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
 import com.ccbgestaocustosapi.utils.exceptions.CentralExceptionHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,14 +23,22 @@ public class CadastroParticipantesController {
                                                                       @RequestParam Integer size,
                                                                       @RequestParam(required = false) String nomeParticipante,
                                                                       @RequestParam(required = false) String valueOrderBY,
-                                                                      @RequestParam(required = false) boolean isOrderByAsc) {
-        // caso não tenha nenhum filtro, ele realizar um getAll
-        if (nomeParticipante == null) {
-            int pageValue = page - 1;
-            PaginatedResponse<CadastroParticipantesATDM> response = this.cadastroParticipantesService.getAllParticipantes(pageValue, size, valueOrderBY, isOrderByAsc);
-            return ResponseEntity.ok(response);
+                                                                      @RequestParam(required = false) boolean isOrderByAsc,
+                                                                      @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+
+        PaginatedResponse<CadastroParticipantesATDMResponse> response = null;
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7); // Pega o token após 'Bearer '
+
+            // caso não tenha nenhum filtro, ele realizar um getAll
+            if (nomeParticipante == null) {
+                int pageValue = page - 1;
+                response = this.cadastroParticipantesService.getAllParticipantes(pageValue, size, valueOrderBY, isOrderByAsc, token);
+                return ResponseEntity.ok(response);
+            }
+
+            response = this.cadastroParticipantesService.getByNomeParticipantes(nomeParticipante, valueOrderBY, isOrderByAsc, token);
         }
-        PaginatedResponse<CadastroParticipantesATDMResponse> response = this.cadastroParticipantesService.getByNomeParticipantes(nomeParticipante, valueOrderBY, isOrderByAsc);
         return ResponseEntity.ok(response);
 
     }
@@ -69,12 +78,16 @@ public class CadastroParticipantesController {
 
 
     @GetMapping(path = "dropdown-comum")
-    public ResponseEntity<?> dropdownComum() {
-        return ResponseEntity.ok(this.cadastroParticipantesService.getDropdownComum());
+    public ResponseEntity<?> dropdownComum(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        String token = authorizationHeader.substring(7); // Pega o token após 'Bearer '
+
+        return ResponseEntity.ok(this.cadastroParticipantesService.getDropdownComum(token));
     }
 
     @GetMapping(path = "dropdown-reuniao")
-    public ResponseEntity<?> dropdownReuniao() {
-            return ResponseEntity.ok(this.cadastroParticipantesService.getDropdownReuniao());
+    public ResponseEntity<?> dropdownReuniao(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        String token = authorizationHeader.substring(7); // Pega o token após 'Bearer '
+
+        return ResponseEntity.ok(this.cadastroParticipantesService.getDropdownReuniao(token));
     }
 }

@@ -9,5 +9,7 @@ public class CadastroReunioesRequest {
     private String reuniaoDataFim;
     private Character reuniaoStatus;
     private String reuniaoAta;
+    private Integer admId;
+
 
 }

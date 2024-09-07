@@ -22,9 +22,6 @@ public interface CasaOracoesRepository extends JpaRepository<CasaOracoes, Intege
                             a.adm_nome,
                             s.setor_nome,
                             co.igr_estado,
-                            co.igr_estado,
-                            co.igr_cidade,
-                            co.igr_estado,
                             co.igr_cidade,
                             co.igr_bairro,
                             co.igr_cep,
@@ -40,9 +37,10 @@ public interface CasaOracoesRepository extends JpaRepository<CasaOracoes, Intege
                             co.setor_id = s.setor_id
                             where
                             upper (co.igr_nome) like upper('%' || :nomeIgreja || '%')
+                            and a.adm_id = :admId
                     """
             , nativeQuery = true)
-    List<Object[]> findByNomeIgreja(@Param("nomeIgreja") String nomeIgreja);
+    List<Object[]> findByNomeIgreja(@Param("nomeIgreja") String nomeIgreja,@Param("admId") Integer admId);
 
 
     @Query(value =

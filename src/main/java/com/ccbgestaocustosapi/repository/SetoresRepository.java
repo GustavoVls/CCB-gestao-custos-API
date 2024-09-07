@@ -14,7 +14,7 @@ public interface SetoresRepository extends JpaRepository<Setores, Integer> {
 
 
     @Query(value =
-            """                      
+            """
                     \s
                                SELECT
                                 COUNT(*) OVER() AS total_records,
@@ -25,10 +25,28 @@ public interface SetoresRepository extends JpaRepository<Setores, Integer> {
                                     FROM
                                    ccb.setores s inner join ccb.administracao a  on a.adm_id  = s.adm_id \s
                                 WHERE
-                                   upper(s.setor_nome)  like upper('%' || :nomeSetor ||'%')
+                                   upper(s.setor_nome)  like upper('%' || :nomeSetor ||'%') and\s
+                                   s.adm_id = :admId
                     """
             , nativeQuery = true)
-    List<Object[]> findByNomeSetor(@Param("nomeSetor") String nomeSetor);
+    List<Object[]> findByNomeSetor(@Param("nomeSetor") String nomeSetor,@Param("admId") Integer admId );
+
+    @Query(value =
+            """                      
+                    \s
+                               SELECT
+                                COUNT(*) OVER() AS total_records,
+                                    s.setor_id,
+                                    s.adm_id,
+                                    s.setor_nome,
+                                    a.adm_nome\s
+                                    FROM
+                                   ccb.setores s inner join ccb.administracao a  on a.adm_id  = s.adm_id \s
+                                WHERE  s.adm_id = :admId
+                                  
+                    """
+            , nativeQuery = true)
+    List<Object[]> findByAdmId(@Param("admId") Integer admId);
 
 
     @Query(value =

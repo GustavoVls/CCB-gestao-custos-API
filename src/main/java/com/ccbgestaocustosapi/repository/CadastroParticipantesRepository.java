@@ -26,9 +26,29 @@ public interface CadastroParticipantesRepository extends JpaRepository<CadastroP
                                                      ccb.cadastro_participantes_atdm cpa  inner join ccb.cadastro_reuniao_atdm cra   on cpa.reuniao_id  = cra.reuniao_id\s
                                                   WHERE
                                                      upper(cpa.par_nome)  like upper('%' || :nomeParticipante ||'%')
+                                                     and cra.adm_id =:admId
                     """
             , nativeQuery = true)
-    List<Object[]> findByNomeParticipantes(@Param("nomeParticipante") String nomeParticipante);
+    List<Object[]> findByNomeParticipantes(@Param("nomeParticipante") String nomeParticipante, @Param("admId") Integer admId);
+
+
+    @Query(value =
+            """                      
+                               SELECT
+                                                  COUNT(*) OVER() AS total_records,
+                                                         cpa.id_participantes,
+                                                         cpa.par_nome,
+                                                         cpa.par_cargo,
+                                                         cpa.par_comum,
+                                                         cra.reuniao_descricao,
+                                                         cra.reuniao_id
+                                                      FROM
+                                                     ccb.cadastro_participantes_atdm cpa  inner join ccb.cadastro_reuniao_atdm cra   on cpa.reuniao_id  = cra.reuniao_id\s
+                                                  WHERE
+                                                     cra.adm_id = :admId
+                    """
+            , nativeQuery = true)
+    List<Object[]> findByAdmId(@Param("admId") Integer admId);
 
 
     @Query(value =
@@ -57,9 +77,9 @@ public interface CadastroParticipantesRepository extends JpaRepository<CadastroP
                                        select
                                                      co.igr_nome\s
                                                        FROM
-                                                     ccb.casa_oracoes co \s
+                                                     ccb.casa_oracoes co where  co.adm_id = :admId \s
              """, nativeQuery = true)
-    List<Object[]> findAllDropdownComum();
+    List<Object[]> findAllDropdownComum(@Param("admId") Integer admId);
 
 
     @Query(value =
@@ -67,7 +87,7 @@ public interface CadastroParticipantesRepository extends JpaRepository<CadastroP
                                     select\s
                                              cra.reuniao_id, cra.reuniao_descricao\s
                                               from\s
-                                    ccb.cadastro_reuniao_atdm cra\s
+                                    ccb.cadastro_reuniao_atdm cra where cra.adm_id = :admId\s
              """, nativeQuery = true)
-    List<Object[]> findAllDropdownReuniao();
+    List<Object[]> findAllDropdownReuniao(@Param("admId") Integer admId);
 }

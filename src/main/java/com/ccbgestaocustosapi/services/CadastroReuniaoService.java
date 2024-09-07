@@ -1,8 +1,12 @@
 package com.ccbgestaocustosapi.services;
 
 import com.ccbgestaocustosapi.dto.CadastroReunioesRequest;
+import com.ccbgestaocustosapi.models.Administracao;
 import com.ccbgestaocustosapi.models.CadastroReuniaoATDM;
+import com.ccbgestaocustosapi.repository.AdministracaoRepository;
 import com.ccbgestaocustosapi.repository.CadastroReuniaoRepository;
+import com.ccbgestaocustosapi.repository.UsersRepository;
+import com.ccbgestaocustosapi.token.TokenRepository;
 import com.ccbgestaocustosapi.utils.DataConverter;
 import com.ccbgestaocustosapi.utils.PaginatedResponse;
 import com.ccbgestaocustosapi.utils.exceptions.genericExceptions.BadCredentialException;
@@ -12,9 +16,6 @@ import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,22 +32,73 @@ public class CadastroReuniaoService {
     private final DataConverter dataConverter;
     private final CadastroReuniaoRepository cadastroReuniaoRepository;
 
-    public PaginatedResponse<CadastroReuniaoATDM> getAllReunioesCadastradas(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc) {
+    private final TokenRepository tokenRepository;
+
+    private final UsersRepository usersRepository;
+
+    private final AdministracaoRepository administracaoRepository;
+
+    public PaginatedResponse<CadastroReuniaoATDM> getAllReunioesCadastradas(int pageValue, Integer size,
+                                                                            String valueOrderBY,
+                                                                            String ascDescValue, String token) {
+        StringBuilder queryBuilder = new StringBuilder("select c.*, COUNT(*) OVER() AS total_records from CCB.CADASTRO_REUNIAO_ATDM c where c.adm_id = :admId and 1=1");
+
+        Map<String, Object> parameters = new HashMap<>();
+
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
+
+
+
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
+
+        parameters.put("admId", idAdm);
+
+        // Ordenação
         if (valueOrderBY != null) {
-            Page<CadastroReuniaoATDM> reunioesCadastradasPage = this.cadastroReuniaoRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ? Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
-            return new PaginatedResponse<>(reunioesCadastradasPage.getContent(), reunioesCadastradasPage.getTotalElements());
+            queryBuilder.append(" order by ").append(valueOrderBY).append(" ").append(ascDescValue); // Evite passar parâmetros para "order by"
         }
 
-        Page<CadastroReuniaoATDM> reunioesCadastradasPage = this.cadastroReuniaoRepository.findAll(PageRequest.of(pageValue, size));
-        return new PaginatedResponse<>(reunioesCadastradasPage.getContent(), reunioesCadastradasPage.getTotalElements());
+        // Adicionando paginação com LIMIT e OFFSET
+        int offset = (pageValue - 1) * size; // Calcula o offset
+        queryBuilder.append(" limit :size offset :offset");
+        parameters.put("size", size);
+        parameters.put("offset", offset);
+
+        Query query = em.createNativeQuery(queryBuilder.toString(), "CadastroReuniaoATDMWithCount");
+
+        // Configuração de parâmetros
+        for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
+        }
+
+        // Execução da consulta
+        List<Object[]> resultList = query.getResultList();
+        int totalRecords = 0;
+
+        List<CadastroReuniaoATDM> cadastroList = new ArrayList<>();
+        for (Object[] result : resultList) {
+            CadastroReuniaoATDM cadastro = (CadastroReuniaoATDM) result[0];
+            totalRecords = ((Number) result[1]).intValue();
+            cadastroList.add(cadastro);
+        }
+
+        return new PaginatedResponse<>(cadastroList.stream().toList(), totalRecords);
     }
 
     @Transactional
     public PaginatedResponse<CadastroReuniaoATDM> getbyIdReunioesCadastradas(String descricao, String dataInicial, String dataFinal, String valueOrderBY, boolean isOrderByAsc
-    , String ascDescValue) {
-        StringBuilder queryBuilder = new StringBuilder("select c.*, COUNT(*) OVER() AS total_records from CCB.CADASTRO_REUNIAO_ATDM c where 1=1");
+            , String ascDescValue, String token) {
+        StringBuilder queryBuilder = new StringBuilder("select c.*, COUNT(*) OVER() AS total_records from CCB.CADASTRO_REUNIAO_ATDM c where  c.adm_id = :admId and 1=1");
 
         Map<String, Object> parameters = new HashMap<>();
+
+        Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
+
+
+
+        Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
+
+        parameters.put("admId", idAdm);
 
         if (descricao != null && !descricao.isEmpty()) {
             queryBuilder.append(" and upper (c.reuniao_descricao) like upper('%' || :descricao || '%')");
@@ -106,6 +158,9 @@ public class CadastroReuniaoService {
         LocalDateTime dateInicial = DataConverter.convertStringToDate(cadastroReuniaoATDM.getReuniaoDataIni());
         LocalDateTime dateFinal = DataConverter.convertStringToDate(cadastroReuniaoATDM.getReuniaoDataFim());
 
+        Optional<Administracao> adm = administracaoRepository.findById(cadastroReuniaoATDM.getAdmId());
+
+
         CadastroReuniaoATDM cadastraReuniao = new CadastroReuniaoATDM();
         cadastraReuniao.setReuniaoDescricao(cadastroReuniaoATDM.getReuniaoDescricao());
         cadastraReuniao.setReuniaoData(LocalDateTime.now());
@@ -113,6 +168,7 @@ public class CadastroReuniaoService {
         cadastraReuniao.setReuniaoDataFim(dateFinal);
         cadastraReuniao.setReuniaoStatus(cadastroReuniaoATDM.getReuniaoStatus());
         cadastraReuniao.setReuniaoAta(cadastroReuniaoATDM.getReuniaoAta());
+        cadastraReuniao.setAdm(adm.get());
         this.cadastroReuniaoRepository.save(cadastraReuniao);
     }
 

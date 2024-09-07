@@ -133,4 +133,14 @@ public interface UsersRepository extends JpaRepository<Usuarios, Integer> {
     List<Object[]> findByNomeUsuario(@Param("nomeUsuario") String nomeUsuario);
 
 
+
+
+    @Query(value = """
+              select ccb.usuarios.adm_id
+                                    from ccb.usuarios\s
+                                    where ccb.usuarios.id_usuario  = :idUsuario
+            """, nativeQuery = true)
+    Integer findAdmIdByIdUsuarios(@Param("idUsuario") Integer idUsuario);
+
+
 }
