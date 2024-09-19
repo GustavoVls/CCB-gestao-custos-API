@@ -14,8 +14,7 @@ import java.io.Serializable;
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"adm_nome", "adm_cidade", "adm_estado"}),
                 @UniqueConstraint(columnNames = {"adm_nome"}),
-                @UniqueConstraint(columnNames = {"adm_cidade"}),
-                @UniqueConstraint(columnNames = {"adm_estado"})
+                @UniqueConstraint(columnNames = {"adm_cidade"})
         })
 @AllArgsConstructor
 @NoArgsConstructor
