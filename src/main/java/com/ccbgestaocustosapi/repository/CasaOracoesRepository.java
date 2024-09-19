@@ -87,4 +87,65 @@ public interface CasaOracoesRepository extends JpaRepository<CasaOracoes, Intege
     List<Object[]> findAllDropdownSetor();
 
 
+
+    @Query(value =
+            """                      
+                    select
+                     COUNT(*) OVER() AS total_records,
+                            co.igr_id,
+                            co.igr_cod,
+                            co.igr_nome,
+                            a.adm_nome,
+                            s.setor_nome,
+                            co.igr_estado,
+                            co.igr_cidade,
+                            co.igr_bairro,
+                            co.igr_cep,
+                            co.igr_endereco,
+                            co.igr_complemento,
+                            a.adm_id,
+                            s.setor_id
+                            from
+                            ccb.casa_oracoes co
+                            inner join ccb.administracao a on
+                            co.adm_id = a.adm_id
+                            inner join ccb.setores s on
+                            co.setor_id = s.setor_id
+                            where
+                             (co.igr_cod) like ('%' || :codIgreja || '%')
+                            and a.adm_id = :admId
+                    """
+            , nativeQuery = true)
+    List<Object[]> findByCodIgreja(@Param("admId") Integer admId, @Param("codIgreja") String codIgreja);
+
+    @Query(value =
+            """                      
+                    select
+                     COUNT(*) OVER() AS total_records,
+                            co.igr_id,
+                            co.igr_cod,
+                            co.igr_nome,
+                            a.adm_nome,
+                            s.setor_nome,
+                            co.igr_estado,
+                            co.igr_cidade,
+                            co.igr_bairro,
+                            co.igr_cep,
+                            co.igr_endereco,
+                            co.igr_complemento,
+                            a.adm_id,
+                            s.setor_id
+                            from
+                            ccb.casa_oracoes co
+                            inner join ccb.administracao a on
+                            co.adm_id = a.adm_id
+                            inner join ccb.setores s on
+                            co.setor_id = s.setor_id
+                            where
+                            upper (co.igr_nome) like upper('%' || :nomeIgreja || '%')
+                            and (co.igr_cod) like ('%' || :codIgreja || '%')
+                            and a.adm_id = :admId
+                    """
+            , nativeQuery = true)
+    List<Object[]> findByNomeIgrejaAndCodIgreja(@Param("nomeIgreja") String nomeIgreja,@Param("admId") Integer admId, @Param("codIgreja") String codIgreja);
 }

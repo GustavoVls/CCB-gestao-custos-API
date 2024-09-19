@@ -25,16 +25,17 @@ public class CasaOracoesController {
     public ResponseEntity<PaginatedResponse<?>> findSetores(@RequestParam Integer page,
                                                             @RequestParam Integer size,
                                                             @RequestParam(required = false) String nomeIgreja,
+                                                            @RequestParam(required = false) String codIgreja,
                                                             @RequestParam(required = false) String valueOrderBY,
                                                             @RequestParam(required = false) boolean isOrderByAsc,
                                                             @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         String token = authorizationHeader.substring(7); // Pega o token após 'Bearer '
         // caso não tenha nenhum filtro, ele realizar um getAll
-        if (nomeIgreja == null) {
+        if (nomeIgreja == null && codIgreja == null) {
             PaginatedResponse<CasaOracoes> response = this.casaOracoesService.getAllCasaOracoes(page, size, valueOrderBY, isOrderByAsc, isOrderByAsc ? "asc" : "desc", token);
             return ResponseEntity.ok(response);
         }
-        PaginatedResponse<CasaOracoesFiltroResponse> response = this.casaOracoesService.getByCasaOracoes(nomeIgreja, valueOrderBY, isOrderByAsc, token);
+        PaginatedResponse<CasaOracoesFiltroResponse> response = this.casaOracoesService.getByCasaOracoes(nomeIgreja, codIgreja, valueOrderBY, isOrderByAsc, token);
         return ResponseEntity.ok(response);
 
 

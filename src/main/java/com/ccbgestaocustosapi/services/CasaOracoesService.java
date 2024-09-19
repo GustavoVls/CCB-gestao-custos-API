@@ -46,7 +46,6 @@ public class CasaOracoesService {
     private final UsersRepository usersRepository;
 
 
-
     public PaginatedResponse<CasaOracoes> getAllCasaOracoes(int pageValue, Integer size, String valueOrderBY, boolean isOrderByAsc, String ascDescValue, String token) {
 
         StringBuilder queryBuilder = new StringBuilder("""
@@ -114,32 +113,34 @@ public class CasaOracoesService {
         }
 
         return new PaginatedResponse<>(cadastroList.stream().toList(), totalRecords);
-
-//        if (valueOrderBY != null) {
-//            Page<CasaOracoes> casaOracoesPage = this.casaOracoesRepository.findAll(PageRequest.of(pageValue, size, Sort.by(isOrderByAsc ? Sort.Direction.ASC : Sort.Direction.DESC, valueOrderBY)));
-//            return new PaginatedResponse<>(casaOracoesPage.getContent(), casaOracoesPage.getTotalElements());
-//        }
-//
-//        Page<CasaOracoes> casaOracoesPage = this.casaOracoesRepository.findAll(PageRequest.of(pageValue, size));
-//        return new PaginatedResponse<>(casaOracoesPage.getContent(), casaOracoesPage.getTotalElements());
     }
 
-    public PaginatedResponse<CasaOracoesFiltroResponse> getByCasaOracoes(String nomeIgreja, String valueOrderBY, boolean isOrderByAsc, String token) {
+    public PaginatedResponse<CasaOracoesFiltroResponse> getByCasaOracoes(String nomeIgreja, String codIgreja, String valueOrderBY, boolean isOrderByAsc, String token) {
 
         Integer IdUsuarioFinded = tokenRepository.findIdUsuarioByToken(token);
         Integer idAdm = usersRepository.findAdmIdByIdUsuarios(IdUsuarioFinded);
 
-        List<Object[]> resultId;
+        List<Object[]> resultId = null;
 
-        if (valueOrderBY == null) {
-            resultId = this.casaOracoesRepository.findByNomeIgreja(nomeIgreja, idAdm);
-        } else {
-            resultId = this.casaOracoesRepository.findByNomeIgrejaOrderBy(
-                    nomeIgreja, valueOrderBY, isOrderByAsc ? "asc" : "desc");
+        if (nomeIgreja != null && codIgreja != null) {
+            resultId = this.casaOracoesRepository.findByNomeIgrejaAndCodIgreja(nomeIgreja, idAdm, codIgreja);
         }
+
+        if (nomeIgreja != null && codIgreja == null) {
+            resultId = this.casaOracoesRepository.findByNomeIgreja(nomeIgreja, idAdm);
+        }
+
+        if (codIgreja != null && nomeIgreja == null) {
+            resultId = this.casaOracoesRepository.findByCodIgreja(idAdm, codIgreja);
+        }
+
+//        if (valueOrderBY == null) {//            resultId = this.casaOracoesRepository.findByNomeIgreja(nomeIgreja, idAdm);//        } else {//            resultId = this.casaOracoesRepository.findByNomeIgrejaOrderBy(
+//                    nomeIgreja, valueOrderBY, isOrderByAsc ? "asc" : "desc");
+//        }
 
         List<CasaOracoesFiltroResponse> casaOracoesDTOs = new ArrayList<>();
 
+        assert resultId != null;
         for (Object[] resultado : resultId) {
             Integer totalRecords = ((Number) resultado[0]).intValue();
             Integer igrId = ((Number) resultado[1]).intValue();
