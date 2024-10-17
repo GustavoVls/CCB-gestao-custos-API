@@ -1,5 +1,5 @@
 # Start with maven:3.8.7-eclipse-temurin-19-alpine base image
-FROM maven:3.1.4-eclipse-temurin-19-alpine
+FROM maven:3.8.7-eclipse-temurin-19-alpine
 
 # LABEL maintainer="Mateus Vinícius <mateus.limavn@gmail.com>"
 # Set the working directory to /app
