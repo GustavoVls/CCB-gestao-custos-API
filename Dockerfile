@@ -16,6 +16,7 @@ ENV DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres
 ENV DATASOURCE_USERNAME=postgres
 ENV DATASOURCE_PASSWORD=zsQ2VTy*/!386Mh]
 
+COPY ./CCB-gestao-custos-API/pom.xml ./
 
 # Expose default Spring Boot port
 EXPOSE 8080
