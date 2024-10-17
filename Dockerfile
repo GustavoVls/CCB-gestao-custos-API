@@ -6,7 +6,7 @@ FROM maven:3.8.7-eclipse-temurin-19-alpine
 WORKDIR /app
 
 # Copy the source code to the container
-COPY . .
+COPY ./CCB-gestao-custos-API/pom.xml ./
 
 # Build the application with Maven
 RUN mvn package
@@ -16,7 +16,7 @@ ENV DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres
 ENV DATASOURCE_USERNAME=postgres
 ENV DATASOURCE_PASSWORD=zsQ2VTy*/!386Mh]
 
-COPY ./CCB-gestao-custos-API/pom.xml ./
+
 
 # Expose default Spring Boot port
 EXPOSE 8080
