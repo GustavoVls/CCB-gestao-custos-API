@@ -6,8 +6,8 @@ FROM maven:3.8.7-eclipse-temurin-19-alpine
 WORKDIR /app
 
 # Copy the source code to the container
-COPY ./CCB-gestao-custos-API/pom.xml ./
-
+COPY ./CCB-gestao-custos-API/pom.xml ./  # Copia o pom.xml
+COPY ./CCB-gestao-custos-API/src ./src    # Copia o diretório src
 # Build the application with Maven
 RUN mvn package
 
