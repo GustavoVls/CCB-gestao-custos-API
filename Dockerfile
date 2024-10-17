@@ -1,5 +1,5 @@
 # Start with maven:3.8.7-openjdk-19-slim base image
-FROM maven:3.8.7-openjdk-19-slim
+FROM maven:3.8.7-eclipse-temurin-19-alpine
 
 # Set the working directory to /app
 WORKDIR /app
