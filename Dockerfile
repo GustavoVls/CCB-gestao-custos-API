@@ -9,7 +9,7 @@ WORKDIR /app
 COPY . .
 
 # Build the application with Maven
-RUN mvn clean package -X
+RUN mvn clean package
 
 # Set environment variables if needed
 ENV DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres
