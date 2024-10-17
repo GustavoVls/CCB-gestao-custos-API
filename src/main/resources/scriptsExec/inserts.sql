@@ -1,3 +1,5 @@
+CREATE SCHEMA IF NOT EXISTS ccb;
+
 -- insert da tabela perfil_usuario
 insert into ccb.perfil_usuario (id_perfil, tipo_perfil) values (1,'ADM');
 insert into ccb.perfil_usuario (id_perfil, tipo_perfil) values (2, 'USER');
